@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Car Checker">
+<meta name="theme-color" content="#1b2528">
+<title>Pre-Purchase Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eef1f0;
+    --card:#ffffff;
+    --ink:#1b2528;
+    --ink-soft:#5a6a6e;
+    --line:#c9d2d1;
+    --fail:#c0392b;
+    --fail-bg:#fbeae7;
+    --advisory:#b26a00;
+    --advisory-bg:#fdf3e0;
+    --pass:#1e7a4f;
+    --pass-bg:#e6f3ec;
+    --accent:#0e5a6d;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    padding-bottom:64px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+  /* Header — inspection sheet masthead */
+  header{
+    background:var(--ink);
+    color:#fff;
+    padding:20px 0 16px;
+    border-bottom:4px solid var(--accent);
+    margin-bottom:20px;
+  }
+  header .wrap{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px}
+  h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:1.7rem;letter-spacing:.04em;text-transform:uppercase;
+  }
+  header .sheet-no{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#9fb2b6;letter-spacing:.06em;
+  }
+
+  /* Sections */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .panel h2{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent);
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .panel h2 .step{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--ink-soft);letter-spacing:0;text-transform:none;
+  }
+
+  /* Form controls — big touch targets */
+  .field{margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+  label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:4px;
+  }
+  select,input[type=number]{
+    width:100%;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:1rem;
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    color:var(--ink);
+    -webkit-appearance:none;appearance:none;
+  }
+  select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6a6e' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;
+    padding-right:36px;
+  }
+  select:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  select:disabled{background-color:#f2f4f4;color:#9aa7aa}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .regrow{display:flex;gap:8px}
+  .regrow input{
+    flex:1;text-transform:uppercase;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.08em;
+  }
+  .regrow button{
+    flex:none;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.95rem;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:0 16px;border:none;border-radius:var(--radius);
+    background:var(--accent);color:#fff;cursor:pointer;
+  }
+  .regrow button:disabled{background:#b3c2c6;cursor:default}
+  .regrow button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .reghint{font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+
+  /* Scorecard */
+  .score-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px dashed var(--line)}
+  .score-row:first-child{border-top:none}
+  .score-row .s-name{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-soft);width:72px;flex:none;
+  }
+  .pips{display:flex;gap:4px;flex:none}
+  .pip{width:22px;height:10px;border-radius:2px;background:#e2e8e7}
+  .pip.on{background:var(--accent)}
+  .score-row.overall .pip{height:14px}
+  .score-row.overall .pip.on{background:var(--ink)}
+  .score-row .s-why{font-size:.78rem;color:var(--ink-soft);flex:1;min-width:0}
+  .score-row .s-num{
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.2rem;
+    width:44px;text-align:right;flex:none;
+  }
+  .score-row.overall .s-num{font-size:1.5rem}
+  @media(max-width:480px){
+    .score-row{flex-wrap:wrap}
+    .score-row .s-why{flex-basis:100%;order:4}
+  }
+
+  /* Save + garage */
+  .saverow{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .saverow input{
+    flex:1;font-size:.9rem;padding:10px 12px;
+    border:1px solid var(--line);border-radius:var(--radius);
+  }
+  .saverow button{
+    flex:none;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.95rem;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:0 16px;border:none;border-radius:var(--radius);
+    background:var(--pass);color:#fff;cursor:pointer;
+  }
+  .saverow button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .g-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 10px;border:1px solid var(--line);border-radius:var(--radius);
+    margin-bottom:8px;background:#fff;cursor:pointer;
+  }
+  .g-row:focus-visible{outline:2px solid var(--accent)}
+  .g-row .g-score{
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.3rem;
+    width:52px;flex:none;text-align:center;
+    border-right:1px solid var(--line);
+  }
+  .g-row .g-main{flex:1;min-width:0}
+  .g-row .g-name{font-weight:600;font-size:.92rem}
+  .g-row .g-meta{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--ink-soft);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .g-row .g-del{
+    flex:none;background:none;border:1px solid var(--line);border-radius:var(--radius);
+    color:var(--fail);font-size:.75rem;padding:6px 10px;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .g-row .g-belt{font-size:.65rem;font-family:'IBM Plex Mono',monospace;padding:2px 6px;border-radius:3px;flex:none}
+  .g-belt.b-red{background:var(--fail-bg);color:var(--fail)}
+  .g-belt.b-amber{background:var(--advisory-bg);color:var(--advisory)}
+  .g-belt.b-green{background:var(--pass-bg);color:var(--pass)}
+  .g-plate{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.8rem;
+    background:#f7d117;color:#111;border:1px solid #c9a800;border-radius:3px;
+    padding:1px 6px;letter-spacing:.06em;margin-right:6px;display:inline-block;
+  }
+  .g-label{font-weight:500;color:var(--ink-soft);font-size:.85rem}
+  .groupline{margin-bottom:12px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .groupchip{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.72rem;
+    letter-spacing:.05em;background:var(--ink);color:#fff;
+    padding:4px 8px;border-radius:3px;flex:none;
+  }
+  .grouphint{font-size:.75rem;color:var(--ink-soft)}
+  @media(max-width:420px){.grid2{grid-template-columns:1fr}}
+
+  /* Toggle row */
+  .toggle{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:10px 0;
+  }
+  .toggle input{width:22px;height:22px;flex:none;accent-color:var(--accent);margin-top:1px}
+  .toggle span{font-size:.92rem}
+
+  /* Verdict strip — the MOT-style result */
+  .verdict{
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:16px;
+    display:none;
+    border:1px solid;
+  }
+  .verdict.show{display:block}
+  .verdict .v-label{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:1.35rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .verdict p{font-size:.9rem;margin-top:4px}
+  .verdict.v-fail{background:var(--fail-bg);border-color:var(--fail);color:#7c2318}
+  .verdict.v-fail .v-label{color:var(--fail)}
+  .verdict.v-adv{background:var(--advisory-bg);border-color:var(--advisory);color:#6e4400}
+  .verdict.v-adv .v-label{color:var(--advisory)}
+  .verdict.v-pass{background:var(--pass-bg);border-color:var(--pass);color:#155c3b}
+  .verdict.v-pass .v-label{color:var(--pass)}
+
+  /* Issue cards */
+  .issue{
+    border:1px solid var(--line);
+    border-left-width:5px;
+    border-radius:var(--radius);
+    margin-bottom:12px;
+    background:#fff;
+    overflow:hidden;
+  }
+  .issue.sev-critical{border-left-color:var(--fail)}
+  .issue.sev-caution{border-left-color:var(--advisory)}
+  .issue.sev-minor{border-left-color:var(--pass)}
+  .issue-head{
+    width:100%;
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px;
+    background:none;border:none;cursor:pointer;text-align:left;
+    font:inherit;color:inherit;
+  }
+  .issue-head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 7px;border-radius:3px;flex:none;
+  }
+  .badge.critical{background:var(--fail-bg);color:var(--fail)}
+  .badge.caution{background:var(--advisory-bg);color:var(--advisory)}
+  .badge.minor{background:var(--pass-bg);color:var(--pass)}
+  .issue-title{font-weight:600;font-size:.95rem;flex:1}
+  .chev{flex:none;transition:transform .15s;color:var(--ink-soft)}
+  .issue.open .chev{transform:rotate(180deg)}
+  .issue-body{display:none;padding:0 14px 14px;font-size:.9rem}
+  .issue.open .issue-body{display:block}
+  .issue-body p{margin-bottom:8px;color:var(--ink-soft)}
+  .issue-body .checks{list-style:none}
+  .issue-body .checks li{
+    display:flex;gap:8px;align-items:flex-start;
+    padding:6px 0;border-top:1px dashed var(--line);
+  }
+  .issue-body .checks li::before{
+    content:"☐";font-family:'IBM Plex Mono',monospace;flex:none;color:var(--accent);
+  }
+  .cost{
+    font-family:'IBM Plex Mono',monospace;font-size:.75rem;
+    color:var(--ink);background:#f2f4f4;border-radius:3px;
+    padding:4px 8px;display:inline-block;margin-top:8px;
+  }
+
+  /* Universal checks */
+  .uni li{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:10px 0;border-top:1px dashed var(--line);
+    font-size:.9rem;list-style:none;
+  }
+  .uni li:first-child{border-top:none}
+  .uni li::before{content:"☐";font-family:'IBM Plex Mono',monospace;flex:none;color:var(--accent);font-size:1rem}
+  .uni a{color:var(--accent)}
+
+  .empty{
+    text-align:center;color:var(--ink-soft);font-size:.9rem;
+    padding:28px 16px;
+  }
+  .empty .big{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);margin-bottom:4px}
+
+  footer{
+    text-align:center;font-size:.72rem;color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;
+    padding:8px 16px;
+  }
+  @media(prefers-reduced-motion:reduce){.chev{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Pre-Purchase Checker</h1>
+    <span class="sheet-no">USED VEHICLE INSPECTION SHEET · REV 1</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="panel">
+    <h2>Vehicle <span class="step">Step 1 of 2</span></h2>
+    <div class="grid2">
+      <div class="field">
+        <label for="make">Make</label>
+        <select id="make"></select>
+      </div>
+      <div class="field">
+        <label for="model">Model</label>
+        <select id="model" disabled></select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="engine">Engine / gearbox</label>
+      <select id="engine" disabled></select>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="year">Year of registration</label>
+        <input type="number" id="year" min="2000" max="2026" placeholder="e.g. 2017" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="miles">Mileage</label>
+        <input type="number" id="miles" min="0" max="400000" step="1000" placeholder="e.g. 68000" inputmode="numeric">
+      </div>
+    </div>
+    <div class="field">
+      <label for="price">Asking price (£)</label>
+      <input type="number" id="price" min="0" max="50000" step="50" placeholder="e.g. 5750" inputmode="numeric">
+    </div>
+    <div class="toggle">
+      <input type="checkbox" id="beltDone">
+      <span><strong>Timing belt already replaced</strong> — seller has an invoice showing a belt change (only relevant to belt-driven engines)</span>
+    </div>
+    <div class="field" style="margin-top:4px">
+      <label for="reg">Registration — used as the save key</label>
+      <div class="regrow">
+        <input type="text" id="reg" placeholder="e.g. NK17 XYZ" autocapitalize="characters" autocomplete="off" maxlength="10">
+        <button type="button" id="motBtn" disabled>Check MOT history</button>
+      </div>
+      <p class="reghint">Opens the official gov.uk MOT check pre-filled — review mileage progression and past advisories there, then tick off the checks below.</p>
+    </div>
+  </section>
+
+  <div id="verdict" class="verdict" role="status">
+    <div class="v-label" id="vLabel"></div>
+    <p id="vText"></p>
+  </div>
+
+  <section class="panel" id="scorePanel" style="display:none">
+    <h2>Score</h2>
+    <div id="scoreRows"></div>
+    <div class="saverow">
+      <input type="text" id="carName" placeholder="Optional label — e.g. G&amp;D Stockton, blue one" maxlength="40">
+      <button type="button" id="saveBtn">Save car</button>
+    </div>
+    <p class="reghint" id="scoreNote"></p>
+  </section>
+
+  <section class="panel" id="garagePanel" style="display:none">
+    <h2>Saved cars <span class="step" id="garageCount"></span></h2>
+    <div id="garageRows"></div>
+    <p class="reghint">Sorted by overall score. Tap a car to reload its details into the form.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Known faults for this spec <span class="step">Step 2 of 2</span></h2>
+    <div id="issues"><div class="empty">
+      <div class="big">No vehicle selected</div>
+      Choose a make, model and engine above to see its documented weak points.
+    </div></div>
+  </section>
+
+  <section class="panel">
+    <h2>Which car? Straight talk</h2>
+    <ul class="uni">
+      <li><strong>Fiesta 1.25 (Mk7.5)</strong> — the sensible default: dry belt, cheap to insure, parts everywhere. Slower and thirstier than the EcoBoost, and that's fine for a first car.</li>
+      <li><strong>Fiesta 1.0 EcoBoost / 1.1</strong> — nicer to drive, but every one carries the wet-belt question. Only buy with oil-change evidence, and price the belt job in past 8 yrs / 100k.</li>
+      <li><strong>Honda Jazz (manual or post-2011 CVT)</strong> — chain-driven, no belt anxiety, statistically the most reliable car here. The catches: manual Jazzes are scarce secondhand, they cost more for the same age — and insurance groups are surprisingly high (13–19, vs 2–9 for a base Fiesta or Fabia). Get a quote before assuming it's the cheap option. Avoid the 2009–11 i-SHIFT entirely.</li>
+      <li><strong>Škoda Fabia 1.0 MPI (2014 on)</strong> — the Fabia equivalent of the Fiesta 1.25: slow, chain-driven, low insurance, solid. The 2014-on TSI engines use a dry belt — the notorious chain problem only applies to the older 2010–14 1.2 TSI.</li>
+      <li><strong>Gearboxes to avoid regardless of badge</strong> — Ford Powershift, Honda i-SHIFT, Škoda DQ200 DSG. If the advert says automatic, check which one before viewing.</li>
+      <li><strong>A score can't see everything</strong> — availability, drive feel and insurance quotes for the actual driver matter as much as the number. A 4/5 car you can insure beats a 5/5 car you can't.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>Every car, every time</h2>
+    <ul class="uni">
+      <li>Run the free <a href="https://www.gov.uk/check-mot-history" target="_blank" rel="noopener">gov.uk MOT history check</a> — look at mileage progression between tests, not just the current reading. Jumps backwards or long gaps are red flags.</li>
+      <li>HPI / history check (~£10) for outstanding finance, insurance write-off category, theft marker and plate changes.</li>
+      <li>Check outstanding recalls free at <a href="https://www.check-vehicle-recalls.service.gov.uk" target="_blank" rel="noopener">gov.uk vehicle recall checker</a>.</li>
+      <li>V5C logbook: name and address match the seller, and the sale happens at that address. Never buy in a car park.</li>
+      <li>Cold start: arrive early and insist the engine is stone cold. A warmed-up engine hides rattles, smoke and poor starting.</li>
+      <li>Service history: stamps or invoices, correct oil grade, sensible intervals. A gap of 2+ years in servicing matters more than one high-mileage year.</li>
+      <li>Tyres: matching brands per axle, even wear. Uneven inner-edge wear suggests alignment or suspension issues.</li>
+      <li>Panel gaps and paint: mismatched shades or overspray on trim indicate accident repair.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>Issue data compiled from documented common faults · Not a substitute for a professional inspection</footer>
+
+<script>
+/* ============================================================
+   ISSUE DATABASE
+   To add a make/model: append to DB following the same shape.
+   Each engine entry lists issue IDs; issues live in ISSUES so
+   they can be shared across engines/models without duplication.
+   ============================================================ */
+
+const ISSUES = {
+  ishift: {
+    title: "i-SHIFT automated manual gearbox",
+    sev: "critical",
+    desc: "The i-SHIFT auto offered on the Jazz from 2009–2011 is an automated manual — clunky by design and the weakest point of this generation, with clutch and actuator problems if fluid servicing was skipped. Honda replaced it with a much better CVT in 2011.",
+    checks: [
+      "Test at crawling speed — judder pulling away means clutch/actuator wear",
+      "Check history for i-SHIFT fluid services and any actuator replacement",
+      "Frankly: prefer a manual or a post-2011 CVT car instead"
+    ],
+    cost: "Clutch/actuator work £500–£1,200"
+  },
+  cvtfluid: {
+    title: "CVT — fluid discipline required",
+    sev: "caution",
+    desc: "Honda's CVT is durable if, and only if, its dedicated HCF-2 fluid is changed roughly every 25–40k miles. Neglect causes judder, hesitation and eventually expensive internal wear. Some 2015 cars were also recalled for a CVT fault that could break an internal shaft and lose drive.",
+    checks: [
+      "Evidence of CVT fluid changes with genuine Honda fluid in the history",
+      "Test drive: smooth take-up from rest, no shudder or whine under acceleration",
+      "Verify any CVT recall was completed via the VIN"
+    ],
+    cost: "Fluid change ~£120–£180; neglected gearbox £1,500+"
+  },
+  takata: {
+    title: "Takata airbag recall",
+    sev: "caution",
+    desc: "Hondas of this era were among the most affected by the global Takata airbag inflator recall. The fix is free, but an outstanding recall on a car this age suggests it's been off the radar of main dealers entirely.",
+    checks: [
+      "Check the VIN on the gov.uk recall checker or with a Honda dealer",
+      "Ask the seller directly whether recall work has been done"
+    ],
+    cost: "Free recall work if outstanding"
+  },
+  jazzboot: {
+    title: "Boot seal water leak",
+    sev: "minor",
+    desc: "Water commonly leaks past the tailgate seal into the underfloor boot compartment in heavy rain. The seal is a cheap fix — the risk is what standing water has already done.",
+    checks: [
+      "Lift the boot floor and check the storage well for water, damp smell or corrosion",
+      "Inspect the tailgate seal for cracks or flattened sections"
+    ],
+    cost: "New seal £30–£80"
+  },
+  doorlocks: {
+    title: "Door locks seizing",
+    sev: "minor",
+    desc: "A known Jazz niggle — locks seize or jam with age. Cheap to sort but check before buying.",
+    checks: [
+      "Try every door with the key and the remote, including the tailgate"
+    ],
+    cost: "Lock replacement £50–£120 per door"
+  },
+  ea111chain: {
+    title: "1.2 TSI (EA111) timing chain tensioner",
+    sev: "critical",
+    desc: "The 2010–2014 1.2 TSI's timing chain tensioner is a notorious weak point — the chain can stretch or jump, and if it jumps the valves meet the pistons and the engine is scrap. A rattle at cold start is the classic warning.",
+    checks: [
+      "Listen carefully at cold start for a rattle lasting 1–2 seconds — walk away or negotiate a chain kit if present",
+      "Look for invoices showing the chain and tensioner have already been replaced (updated parts)",
+      "Regular oil changes with correct spec are essential to chain life"
+    ],
+    cost: "Chain + tensioner kit £500–£800; jumped chain = engine £2,000+"
+  },
+  htpchain: {
+    title: "1.2 HTP 3-cyl chain stretch",
+    sev: "caution",
+    desc: "The older 1.2 HTP three-cylinder also uses a timing chain that stretches with age and neglected oil changes, giving rattles and eventually timing faults. Less catastrophic than the TSI tensioner issue but the same discipline applies.",
+    checks: [
+      "Listen for chain rattle at cold start and at idle",
+      "Check for engine management light and any stored timing-related codes",
+      "Verify oil change history"
+    ],
+    cost: "Chain kit £400–£650"
+  },
+  dq200: {
+    title: "DSG (DQ200 7-speed) gearbox",
+    sev: "critical",
+    desc: "The dry-clutch 7-speed DSG in small Škodas has well-documented mechatronic unit and clutch pack failures — juddering, hesitation, warning lights, or sudden loss of drive. Later units improved but the design risk never fully went away.",
+    checks: [
+      "Test in stop-start traffic: creep should be smooth, no shudder or clunks between 1st–2nd",
+      "Check for gearbox warning lights and any mechatronic/clutch invoices — a done repair is a plus",
+      "Listen for rattles at idle in Drive"
+    ],
+    cost: "Mechatronic £1,000–£1,800; clutch pack £800–£1,400"
+  },
+  ea189: {
+    title: "1.6 TDI (EA189) — dieselgate engine",
+    sev: "minor",
+    desc: "This is the emissions-scandal engine. Nearly all had the fix applied; some owners reported EGR faults and regeneration quirks afterwards. Mostly historic now, but check the EGR behaves.",
+    checks: [
+      "Confirm the emissions service action shows in service history",
+      "Watch for EGR-related warning lights or hesitant running on the test drive"
+    ],
+    cost: "EGR valve £250–£450 if faulty"
+  },
+  st180head: {
+    title: "1.6 EcoBoost coolant loss / cylinder head",
+    sev: "caution",
+    desc: "The ST180's 1.6 EcoBoost has a documented history of coolant loss leading to overheating and, in bad cases, cracked cylinder heads. Related engines were subject to coolant-loss field actions. Cam drive is a conventional dry belt — no wet-belt issue.",
+    checks: [
+      "Check coolant level and look for any mayonnaise under the oil cap",
+      "Ask directly about coolant top-ups or overheating history",
+      "Verify any coolant-system recall work via the VIN at a Ford dealer",
+      "Watch the temperature gauge on an extended test drive"
+    ],
+    cost: "Head repair/replacement £1,200–£2,500"
+  },
+  oilpumpbelt: {
+    title: "Oil pump wet belt (from Feb 2019 production)",
+    sev: "caution",
+    desc: "Camshafts are chain-driven on this engine, but from around February 2019 production the oil pump is driven by a small belt running in oil. Far lower failure rate than the 1.0 EcoBoost cam belt, but correct 5W-20 oil and proper intervals still matter.",
+    checks: [
+      "Full oil service history with correct 5W-20 spec",
+      "Remove oil filler cap and check for debris or sludge",
+      "Pre-2019 build cars have a gear-driven pump — check build date if it matters to you"
+    ],
+    cost: "No scheduled replacement; oil discipline is the protection"
+  },
+  insurance: {
+    title: "Insurance reality check (ST)",
+    sev: "caution",
+    desc: "ST models sit in insurance group 28–34 — for a young or new driver the premium will likely exceed the value of the car, and may be refused outright. Modified examples are also common and harder to insure.",
+    checks: [
+      "Get an actual insurance quote for the intended driver BEFORE viewing",
+      "Check for modifications: remaps, induction kits, non-standard exhausts",
+      "Remapped cars must be declared to insurers — undeclared maps void cover"
+    ],
+    cost: "Young driver premium commonly £2,500–£5,000+/yr"
+  },
+  wetbelt: {
+    title: "Wet timing belt (belt-in-oil)",
+    sev: "critical",
+    desc: "The cam belt runs inside the engine, bathed in oil. Degraded oil or stretched service intervals break the belt down; shed rubber can block the oil pickup and starve the engine of oil — worst case a destroyed engine. Official change interval is 10 years / 150,000 miles but independent specialists advise ~8 years / 100,000 miles.",
+    checks: [
+      "Full service history with correct 5W-20 oil spec and no stretched intervals",
+      "Invoice proving a belt replacement if the car is near or past 8 yrs / 100k",
+      "Remove oil filler cap: look for rubber debris or heavy sludge",
+      "Listen at cold start for rattle from the belt end of the engine"
+    ],
+    cost: "Preventative belt replacement £500–£1,000+"
+  },
+  degas: {
+    title: "Coolant hose / degas pipe failure (fire risk recall)",
+    sev: "critical",
+    yearMax: 2014,
+    desc: "Early 1.0 EcoBoost engines (built roughly Oct 2011 – Oct 2014) had a nylon coolant pipe that could fail, causing rapid coolant loss, overheating, and in the worst cases engine fires. Ford issued a field service action to fit a coolant-level sensor and revised hose.",
+    checks: [
+      "Confirm the recall/FSA work was carried out — check with a Ford dealer using the VIN",
+      "Check coolant level and look for staining around hoses",
+      "Ask if the car has ever overheated or lost coolant"
+    ],
+    cost: "Recall work free at Ford if outstanding"
+  },
+  powershift: {
+    title: "Powershift (DPS6) dual-clutch gearbox",
+    sev: "critical",
+    desc: "The dry-clutch Powershift automatic fitted to Mk7/7.5 Fiestas is notorious for clutch shudder, jerky low-speed behaviour and transmission control module failures. Repairs are expensive and problems often recur.",
+    checks: [
+      "Test drive at crawling speed in traffic conditions — feel for shudder or lurching",
+      "Check for gearbox warning lights and any TCM replacement invoices",
+      "Listen for rattles at idle in Drive"
+    ],
+    cost: "Clutch pack £800–£1,500; TCM £400–£800"
+  },
+  epas: {
+    title: "Electric power steering failure",
+    sev: "caution",
+    desc: "Mk7 Fiestas have documented cases of the electric power steering motor or torque sensor failing, causing sudden heavy steering. Often signalled by a steering warning light or intermittent assistance.",
+    checks: [
+      "Turn lock-to-lock at standstill and at low speed — assistance should be smooth and constant",
+      "Check for a steering (red/amber) warning light on startup",
+      "Ask whether the steering column or rack has ever been replaced"
+    ],
+    cost: "Replacement column/motor £400–£900"
+  },
+  suspension: {
+    title: "Front suspension knocks",
+    sev: "minor",
+    desc: "Anti-roll bar drop links and lower arm bushes wear on all Fiestas — a knock or rattle over speed bumps and potholes. Cheap to fix but useful for negotiation.",
+    checks: [
+      "Drive over rough road or speed bumps and listen for front-end knocking",
+      "Check most recent MOT for suspension advisories"
+    ],
+    cost: "Drop links ~£60–£100 per side fitted"
+  },
+  clutchjudder: {
+    title: "Clutch wear / judder (manual)",
+    sev: "minor",
+    desc: "Manual Fiestas can develop clutch judder when pulling away, especially on hills. Not a design fault so much as a wear item, but a full clutch job is a meaningful cost on a cheap car.",
+    checks: [
+      "Pull away uphill and feel for judder or vibration through the pedal",
+      "High biting point suggests a worn clutch",
+      "Accelerate hard in a high gear at low revs — slipping revs mean a tired clutch"
+    ],
+    cost: "Clutch replacement £450–£700"
+  },
+  dpf: {
+    title: "DPF blockage on short journeys (diesel)",
+    sev: "caution",
+    desc: "TDCi diesels used mainly for short urban trips never get hot enough to regenerate the diesel particulate filter. A blocked DPF means limp mode and an expensive clean or replacement. A diesel is the wrong choice for a student doing short local runs.",
+    checks: [
+      "Ask what journeys the car was used for — motorway miles are good, school runs are bad",
+      "Check for DPF warning light and excessive smoke on a hard test-drive acceleration",
+      "Look for evidence of forced regenerations or DPF cleaning invoices"
+    ],
+    cost: "DPF clean £150–£300; replacement £800–£1,500"
+  },
+  injectors: {
+    title: "1.6 TDCi injector and turbo issues",
+    sev: "caution",
+    desc: "The 1.6 TDCi (PSA-sourced DV6) has a history of injector seal failure ('black death' carbon build-up) and turbo failures caused by oil starvation, particularly if oil changes were skipped.",
+    checks: [
+      "Listen for chuffing/knocking from injectors at idle",
+      "Check for tar-like deposits around injector bases (look under engine cover)",
+      "Verify regular oil changes with correct spec in history"
+    ],
+    cost: "Injector reseal £250–£500; turbo £600–£1,000"
+  },
+  mk8clutch: {
+    title: "Clutch & slave cylinder failures (Mk8)",
+    sev: "caution",
+    desc: "Mk8 manual Fiestas have a documented pattern of premature clutch and concentric slave cylinder failures, sometimes at surprisingly low mileage. Ford revised parts over time.",
+    checks: [
+      "Feel for a low or inconsistent biting point",
+      "Listen for squealing when depressing the clutch pedal",
+      "Ask if the clutch has already been replaced — an invoice is a plus, not a minus"
+    ],
+    cost: "Clutch + CSC £500–£800"
+  },
+  sync: {
+    title: "SYNC infotainment glitches",
+    sev: "minor",
+    desc: "Mk8 touchscreens can freeze, reboot or lose Bluetooth pairing. Usually fixed by software updates but check it works before you buy.",
+    checks: [
+      "Pair a phone and test Bluetooth audio + calls",
+      "Check the reversing camera (if fitted) displays promptly",
+      "Confirm DAB radio holds signal"
+    ],
+    cost: "Usually software only; screen replacement £200–£400"
+  },
+  corrosion: {
+    title: "Tailgate and arch corrosion (older cars)",
+    sev: "minor",
+    desc: "Older Mk7s can rust around the tailgate handle recess, rear wiper spindle and wheel-arch lips. Cosmetic at first, but it spreads.",
+    checks: [
+      "Inspect around the tailgate handle and rear wiper base",
+      "Run a hand around rear arch lips for bubbling",
+      "Check sills and jacking points underneath"
+    ],
+    cost: "Localised repair £150–£400 per panel"
+  }
+};
+
+const DB = {
+  "Ford": {
+    "Fiesta Mk7 (2008–2012)": {
+      years: [2008, 2012],
+      engines: {
+        "1.25 / 1.4 / 1.6 petrol (Sigma) — manual": { belt: "dry", group: "1.25: 3–7 · 1.4/1.6: 9–14", issues: ["epas","suspension","clutchjudder","corrosion"],
+          note: "Conventional external dry cam belt — no wet-belt risk. Change interval 8 yrs / 100k (~£250–£350)." },
+        "1.25 / 1.4 petrol — Automatic (4-spd)": { belt: "dry", group: "9–11", issues: ["epas","suspension","corrosion"] },
+        "1.4 / 1.6 TDCi diesel — manual": { belt: "dry", priceFactor: 0.9, group: "9–13", issues: ["dpf","injectors","epas","suspension","corrosion"] }
+      }
+    },
+    "Fiesta Mk7.5 (2013–2017)": {
+      years: [2013, 2017],
+      engines: {
+        "1.0 EcoBoost petrol — manual": { belt: "wet", group: "11–14", issues: ["wetbelt","degas","suspension","clutchjudder"] },
+        "1.0 EcoBoost petrol — Powershift auto": { belt: "wet", gearboxRisk: true, group: "12–14", issues: ["wetbelt","degas","powershift","suspension"] },
+        "1.25 petrol (Sigma) — manual": { belt: "dry", group: "5–9", issues: ["suspension","clutchjudder"],
+          note: "Conventional external dry cam belt — no wet-belt risk. Change interval 8 yrs / 100k (~£250–£350). The sensible low-insurance first-car engine." },
+        "1.5 / 1.6 TDCi diesel — manual": { belt: "dry", priceFactor: 0.9, group: "10–13", issues: ["dpf","injectors","suspension"] },
+        "1.6 EcoBoost ST180 — manual": { belt: "dry", priceFactor: 1.5, group: "~30", issues: ["st180head","insurance","suspension","clutchjudder"],
+          note: "Dry cam belt — no wet-belt issue. But see the insurance and cylinder-head cards below before falling in love." }
+      }
+    },
+    "Fiesta Mk8 (2017–2023)": {
+      years: [2017, 2023],
+      engines: {
+        "1.0 EcoBoost (incl. mHEV) — manual": { belt: "wet", group: "10–18 by power/trim", issues: ["wetbelt","mk8clutch","suspension","sync"] },
+        "1.0 EcoBoost — automatic": { belt: "wet", group: "12–18", issues: ["wetbelt","sync","suspension"] },
+        "1.1 Ti-VCT petrol — manual": { belt: "wet", group: "2–7", issues: ["wetbelt","mk8clutch","suspension","sync"],
+          note: "Same belt-in-oil design as the EcoBoost. Often assumed safe because it's the base engine — it isn't." },
+        "1.5 TDCi diesel — manual": { belt: "dry", priceFactor: 0.9, group: "10–14", issues: ["dpf","suspension","sync"] },
+        "1.5 EcoBoost ST — manual": { belt: "chain", priceFactor: 1.7, group: "28–34", issues: ["oilpumpbelt","insurance","mk8clutch","suspension","sync"],
+          note: "Chain-driven cams — the notorious 1.0 wet cam belt does not apply, though later builds have a wet-belt oil pump drive (see card)." }
+      }
+    }
+  }
+  ,
+  "Honda": {
+    "Jazz Mk2 GE (2008–2015)": {
+      years: [2008, 2015], priceFactor: 1.15,
+      engines: {
+        "1.2 / 1.4 i-VTEC — manual": { belt: "chain", group: "1.2: 13–14 · 1.4: 16–19", issues: ["takata","jazzboot","doorlocks","clutchjudder","suspension"],
+          note: "Chain-driven — no belt to worry about. One of the most reliable small cars of its era; the checks below are niggles, not landmines. Low insurance groups too." },
+        "1.4 i-VTEC — i-SHIFT auto (2009–2011)": { belt: "chain", gearboxRisk: true, group: "16", issues: ["ishift","takata","jazzboot","doorlocks"] },
+        "1.4 i-VTEC — CVT (2011 on)": { belt: "chain", group: "16–19", issues: ["cvtfluid","takata","jazzboot","doorlocks","suspension"] }
+      }
+    },
+    "Jazz Mk3 GK (2015–2020)": {
+      years: [2015, 2020], priceFactor: 1.15,
+      engines: {
+        "1.3 i-VTEC — manual": { belt: "chain", group: "est. 13–17", issues: ["clutchjudder","suspension"],
+          note: "Chain-driven and largely trouble-free. Dull to drive, brilliant to own." },
+        "1.3 i-VTEC — CVT": { belt: "chain", group: "est. 13–17", issues: ["cvtfluid","suspension"] }
+      }
+    },
+    "Jazz Mk4 e:HEV (2020 on)": {
+      years: [2020, 2026], priceFactor: 1.25,
+      engines: {
+        "1.5 i-MMD hybrid — auto": { belt: "chain", group: "est. 17–21", issues: ["suspension"],
+          note: "Chain-driven hybrid with an excellent record so far. The catch is price — Jazzes hold value stubbornly, and this generation especially." }
+      }
+    }
+  },
+  "Škoda": {
+    "Fabia II (2007–2014)": {
+      years: [2007, 2014], priceFactor: 0.95,
+      engines: {
+        "1.2 HTP 3-cyl petrol — manual": { belt: "chain", group: "1–3", issues: ["htpchain","suspension","clutchjudder"] },
+        "1.2 TSI (EA111) — manual": { belt: "chain", group: "8–11", issues: ["ea111chain","suspension","clutchjudder"] },
+        "1.2 TSI (EA111) — DSG auto": { belt: "chain", gearboxRisk: true, group: "9–12", issues: ["ea111chain","dq200","suspension"] },
+        "1.4 16v petrol — manual": { belt: "dry", group: "4–7", issues: ["suspension","clutchjudder"],
+          note: "Conventional dry cam belt — change every 4–5 yrs on VAG's schedule (~£300)." },
+        "1.6 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "9–13", issues: ["dpf","ea189","suspension"] }
+      }
+    },
+    "Fabia III (2014–2021)": {
+      years: [2014, 2021], priceFactor: 0.95,
+      engines: {
+        "1.0 MPI petrol — manual": { belt: "chain", group: "1–3", issues: ["suspension","clutchjudder"],
+          note: "Chain-driven, slow, and solid — the Fabia equivalent of the Fiesta 1.25 as a first car. Low insurance." },
+        "1.0 / 1.2 TSI (EA211) — manual": { belt: "dry", group: "8–13", issues: ["suspension","clutchjudder"],
+          note: "The EA211 moved to a conventional external dry belt with a long service life — the EA111 chain problem does NOT apply to these." },
+        "1.0 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "10–14", issues: ["dq200","suspension"] },
+        "1.4 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "10–13", issues: ["dpf","suspension"] }
+      }
+    },
+    "Fabia IV (2021 on)": {
+      years: [2021, 2026], priceFactor: 1.0,
+      engines: {
+        "1.0 MPI / TSI — manual": { belt: "dry", group: "MPI: 3–5 · TSI: 10–14", issues: ["suspension"],
+          note: "Too new for established fault patterns; standard used-car checks apply." },
+        "1.0 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "12–16", issues: ["dq200","suspension"] }
+      }
+    }
+  }
+  /* To extend: add e.g. "Vauxhall": { "Corsa E (2014–2019)": {...} } */
+};
+
+/* ============================================================ */
+
+const $ = id => document.getElementById(id);
+const makeSel = $("make"), modelSel = $("model"), engSel = $("engine");
+const yearIn = $("year"), milesIn = $("miles"), beltChk = $("beltDone");
+
+function fill(sel, opts, placeholder){
+  sel.innerHTML = "";
+  const p = document.createElement("option");
+  p.value = ""; p.textContent = placeholder;
+  sel.appendChild(p);
+  opts.forEach(o => {
+    const el = document.createElement("option");
+    el.value = o; el.textContent = o;
+    sel.appendChild(el);
+  });
+}
+
+fill(makeSel, Object.keys(DB), "Select make…");
+fill(modelSel, [], "Select model…");
+fill(engSel, [], "Select engine…");
+
+makeSel.addEventListener("change", () => {
+  const mk = makeSel.value;
+  fill(modelSel, mk ? Object.keys(DB[mk]) : [], "Select model…");
+  modelSel.disabled = !mk;
+  fill(engSel, [], "Select engine…");
+  engSel.disabled = true;
+  render();
+});
+modelSel.addEventListener("change", () => {
+  const mk = makeSel.value, md = modelSel.value;
+  fill(engSel, md ? Object.keys(DB[mk][md].engines) : [], "Select engine…");
+  engSel.disabled = !md;
+  render();
+});
+[engSel, yearIn, milesIn, beltChk, $("price")].forEach(el =>
+  el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", render)
+);
+
+// Registration → gov.uk MOT check deep link
+const regIn = $("reg"), motBtn = $("motBtn");
+regIn.addEventListener("input", () => {
+  regIn.value = regIn.value.toUpperCase();
+  motBtn.disabled = regIn.value.replace(/\s/g, "").length < 4;
+});
+motBtn.addEventListener("click", () => {
+  const reg = encodeURIComponent(regIn.value.replace(/\s/g, ""));
+  window.open("https://www.check-mot.service.gov.uk/results?registration=" + reg, "_blank", "noopener");
+});
+
+/* ---- Persistent storage ------------------------------------
+   Uses Claude's artifact storage when available (persists across
+   sessions in claude.ai); falls back to localStorage when the
+   file is opened in a normal browser; memory-only as last resort. */
+const store = (() => {
+  const KEY = "saved-cars";
+  let mem = null;
+  const hasClaude = typeof window.storage !== "undefined";
+  const hasLocal = (() => { try { localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return true; } catch(e){ return false; } })();
+  return {
+    async load(){
+      try {
+        if (hasClaude){
+          const r = await window.storage.get(KEY);
+          return r ? JSON.parse(r.value) : [];
+        }
+        if (hasLocal) return JSON.parse(localStorage.getItem(KEY) || "[]");
+      } catch(e){ /* missing key or parse error */ }
+      return mem || [];
+    },
+    async save(cars){
+      mem = cars;
+      try {
+        if (hasClaude){ await window.storage.set(KEY, JSON.stringify(cars)); return; }
+        if (hasLocal){ localStorage.setItem(KEY, JSON.stringify(cars)); }
+      } catch(e){ console.error("Save failed", e); }
+    }
+  };
+})();
+
+let garage = [];
+
+function beltBadge(cls){
+  if (cls === "v-fail") return '<span class="g-belt b-red">BELT DUE</span>';
+  if (cls === "v-adv") return '<span class="g-belt b-amber">BELT SOON</span>';
+  return '<span class="g-belt b-green">BELT OK</span>';
+}
+
+function renderGarage(){
+  const panel = $("garagePanel"), rows = $("garageRows");
+  if (!garage.length){ panel.style.display = "none"; return; }
+  panel.style.display = "block";
+  $("garageCount").textContent = garage.length + (garage.length === 1 ? " car" : " cars");
+  const sorted = [...garage].sort((a,b) => b.overall - a.overall);
+  rows.innerHTML = "";
+  sorted.forEach(car => {
+    const row = document.createElement("div");
+    row.className = "g-row";
+    row.tabIndex = 0;
+    row.setAttribute("role","button");
+    row.innerHTML = `
+      <span class="g-score">${car.overall}<span style="font-size:.7rem;color:var(--ink-soft)">/5</span></span>
+      <div class="g-main">
+        <div class="g-name"><span class="g-plate">${car.reg}</span><span class="g-label"></span></div>
+        <div class="g-meta">${car.year} · ${car.miles.toLocaleString()} mi · ${car.price ? "£" + car.price.toLocaleString() : "no price"} · ${car.engine}</div>
+      </div>
+      ${beltBadge(car.beltCls)}
+      <button class="g-del" aria-label="Delete saved car">DEL</button>`;
+    row.querySelector(".g-label").textContent = car.name ? " " + car.name : "";
+    const loadCar = () => {
+      makeSel.value = car.make; makeSel.dispatchEvent(new Event("change"));
+      modelSel.value = car.model; modelSel.dispatchEvent(new Event("change"));
+      engSel.value = car.engine;
+      yearIn.value = car.year; milesIn.value = car.miles;
+      $("price").value = car.price || ""; beltChk.checked = !!car.beltDone;
+      if (car.reg){ regIn.value = car.reg; regIn.dispatchEvent(new Event("input")); }
+      $("carName").value = car.name;
+      render();
+      window.scrollTo({top: 0, behavior: "smooth"});
+    };
+    row.addEventListener("click", e => { if (!e.target.classList.contains("g-del")) loadCar(); });
+    row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); loadCar(); } });
+    row.querySelector(".g-del").addEventListener("click", async () => {
+      garage = garage.filter(c => c.id !== car.id);
+      await store.save(garage);
+      renderGarage();
+    });
+    rows.appendChild(row);
+  });
+}
+
+$("saveBtn").addEventListener("click", async () => {
+  const mk = makeSel.value, md = modelSel.value, en = engSel.value;
+  if (!mk || !md || !en) return;
+  const regKey = regIn.value.replace(/\s/g, "").toUpperCase();
+  if (regKey.length < 4){
+    $("saveBtn").textContent = "Enter reg first";
+    regIn.focus();
+    setTimeout(() => $("saveBtn").textContent = "Save car", 1600);
+    return;
+  }
+  const spec = DB[mk][md].engines[en];
+  const v = beltVerdict(spec);
+  const s = computeScores(spec, v, DB[mk][md].priceFactor || 1);
+  if (!s){
+    $("saveBtn").textContent = "Add year + miles";
+    setTimeout(() => $("saveBtn").textContent = "Save car", 1600);
+    return;
+  }
+  const name = $("carName").value.trim() ||
+    `${yearIn.value} ${md.split(" ")[0]} ${en.split(" ")[0]}`;
+  const existing = garage.findIndex(c => c.reg === regKey);
+  const car = {
+    id: existing >= 0 ? garage[existing].id : Date.now(),
+    reg: regKey, name, make: mk, model: md, engine: en,
+    year: parseInt(yearIn.value), miles: parseInt(milesIn.value),
+    price: parseInt($("price").value) || 0,
+    beltDone: beltChk.checked,
+    overall: s.overall, beltCls: v ? v.cls : "v-pass"
+  };
+  if (existing >= 0) garage[existing] = car; else garage.push(car);
+  await store.save(garage);
+  renderGarage();
+  $("saveBtn").textContent = existing >= 0 ? "Updated " + regKey + " ✓" : "Saved " + regKey + " ✓";
+  setTimeout(() => $("saveBtn").textContent = "Save car", 1600);
+});
+
+// Load saved cars on startup
+store.load().then(cars => { garage = cars || []; renderGarage(); });
+
+function beltVerdict(spec){
+  const year = parseInt(yearIn.value), miles = parseInt(milesIn.value);
+  const nowYear = new Date().getFullYear();
+  if (spec.belt !== "wet") return null;
+  if (beltChk.checked) return {
+    cls: "v-pass", label: "Belt replaced — risk managed",
+    text: "A documented belt change resets the clock. Verify the invoice covers the belt AND tensioners, and keep using the correct 5W-20 oil at proper intervals."
+  };
+  if (!year && !miles) return {
+    cls: "v-adv", label: "Wet-belt engine",
+    text: "Enter the year and mileage above for a risk assessment on the belt."
+  };
+  const age = year ? nowYear - year : 0;
+  const m = miles || 0;
+  if (age >= 8 || m >= 100000) return {
+    cls: "v-fail", label: "Belt change due — budget for it or walk away",
+    text: `This car is ${age ? age + " years old" : ""}${age && m ? " with " : ""}${m ? m.toLocaleString() + " miles" : ""}. Specialists advise replacement by 8 years / 100,000 miles. With no invoice for a belt change, price a £500–£1,000 job into your offer — or find one that's had it done.`
+  };
+  if (age >= 6 || m >= 70000) return {
+    cls: "v-adv", label: "Belt change approaching",
+    text: "Not overdue yet, but you'll be paying for the belt within your ownership. Factor £500–£1,000 into total cost, and walk away if the oil history is patchy — degraded oil is what kills these belts."
+  };
+  return {
+    cls: "v-pass", label: "Belt risk low — for now",
+    text: "Young enough that the belt shouldn't be an immediate concern, provided the service history shows correct oil and intervals. Diarise the change for 8 years / 100k."
+  };
+}
+
+/* ---- Scoring ---------------------------------------------- */
+/* Guide values: typical dealer price for an average-mileage,
+   mid-spec petrol Fiesta by year (calibrated against live
+   Durham-area listings, July 2026). priceFactor on an engine
+   adjusts for ST/diesel variants. */
+const GUIDE = {2008:1500,2009:1700,2010:1900,2011:2100,2012:2400,2013:2750,
+  2014:3400,2015:4000,2016:5000,2017:5800,2018:7200,2019:8300,
+  2020:9800,2021:10800,2022:11800,2023:13000};
+
+const EXPECTED_MILES_PER_YEAR = 8500;
+const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
+
+function mileageScore(ratio){
+  if (ratio <= 0.55) return 5;
+  if (ratio <= 0.80) return 4;
+  if (ratio <= 1.15) return 3;
+  if (ratio <= 1.50) return 2;
+  return 1;
+}
+function priceScore(pratio){
+  if (pratio <= 0.80) return 5;
+  if (pratio <= 0.92) return 4;
+  if (pratio <= 1.08) return 3;
+  if (pratio <= 1.25) return 2;
+  return 1;
+}
+
+function computeScores(spec, v, modelFactor = 1){
+  const year = parseInt(yearIn.value), miles = parseInt(milesIn.value), price = parseInt($("price").value);
+  if (!year || isNaN(miles)) return null;
+  const age = Math.max(0.5, new Date().getFullYear() - year);
+  const expected = age * EXPECTED_MILES_PER_YEAR;
+  const ratio = miles / expected;
+  const mScore = mileageScore(ratio);
+  const mWhy = `${miles.toLocaleString()} mi vs ~${Math.round(expected/500)*500/1000}k expected for age`;
+
+  let pScore = null, pWhy = "Enter an asking price to rate value";
+  if (price){
+    const base = GUIDE[clamp(year, 2008, 2023)];
+    const adj = base * modelFactor * (spec.priceFactor || 1) * clamp(1 + 0.3*(1 - ratio), 0.65, 1.35);
+    const pratio = price / adj;
+    pScore = priceScore(pratio);
+    pWhy = `£${price.toLocaleString()} vs ~£${(Math.round(adj/50)*50).toLocaleString()} mileage-adjusted guide`;
+  }
+
+  // Overall: average of available scores, minus condition penalties
+  let overall = pScore !== null ? (mScore + pScore)/2 : mScore;
+  const penalties = [];
+  if (v && v.cls === "v-fail"){ overall -= 1.5; penalties.push("belt overdue −1.5"); }
+  else if (v && v.cls === "v-adv" && (yearIn.value || milesIn.value)){ overall -= 0.5; penalties.push("belt approaching −0.5"); }
+  if (spec.gearboxRisk){ overall -= 1; penalties.push("high-risk gearbox −1"); }
+  overall = clamp(Math.round(overall*2)/2, 1, 5);
+
+  return { mScore, mWhy, pScore, pWhy, overall,
+    oWhy: penalties.length ? "Penalties: " + penalties.join(", ") : "Mileage + price" + (pScore===null ? " (price not entered)" : "") };
+}
+
+function pips(score, max=5){
+  let h = '<span class="pips">';
+  for (let i=1; i<=max; i++) h += `<span class="pip${score >= i - 0.25 ? " on" : ""}"></span>`;
+  return h + "</span>";
+}
+
+function renderScores(spec, v, modelFactor){
+  const panel = $("scorePanel"), rows = $("scoreRows");
+  const s = computeScores(spec, v, modelFactor);
+  if (!s){ panel.style.display = "none"; return; }
+  panel.style.display = "block";
+  rows.innerHTML = `
+    <div class="score-row">
+      <span class="s-name">Mileage</span>${pips(s.mScore)}
+      <span class="s-why">${s.mWhy}</span>
+      <span class="s-num">${s.mScore}/5</span>
+    </div>
+    <div class="score-row">
+      <span class="s-name">Price</span>${pips(s.pScore ?? 0)}
+      <span class="s-why">${s.pWhy}</span>
+      <span class="s-num">${s.pScore !== null ? s.pScore + "/5" : "–"}</span>
+    </div>
+    <div class="score-row overall">
+      <span class="s-name">Overall</span>${pips(s.overall)}
+      <span class="s-why">${s.oWhy}</span>
+      <span class="s-num">${s.overall}/5</span>
+    </div>`;
+  $("scoreNote").textContent = "Guide prices are for mid-spec petrol dealer stock; private sales should score roughly one point better on price at the same money. A 5 on price with a 1 on mileage usually means the mileage explains the price.";
+}
+
+function render(){
+  const mk = makeSel.value, md = modelSel.value, en = engSel.value;
+  const issuesEl = $("issues"), verdictEl = $("verdict");
+
+  if (!mk || !md || !en){
+    issuesEl.innerHTML = '<div class="empty"><div class="big">No vehicle selected</div>Choose a make, model and engine above to see its documented weak points.</div>';
+    verdictEl.className = "verdict";
+    $("scorePanel").style.display = "none";
+    return;
+  }
+
+  const spec = DB[mk][md].engines[en];
+  const year = parseInt(yearIn.value);
+
+  // Verdict strip
+  const v = beltVerdict(spec);
+  if (v){
+    verdictEl.className = "verdict show " + v.cls;
+    $("vLabel").textContent = v.label;
+    $("vText").textContent = v.text;
+  } else {
+    verdictEl.className = "verdict show v-pass";
+    $("vLabel").textContent = spec.belt === "chain" ? "Chain-driven cams — no wet cam belt" : "No wet belt on this engine";
+    $("vText").textContent = spec.note || "This engine uses a conventional timing setup — the wet-belt problem does not apply. Standard belt/chain maintenance rules still apply.";
+  }
+
+  renderScores(spec, v, DB[mk][md].priceFactor || 1);
+
+  // Issue cards, filtered by year where relevant, sorted by severity
+  const order = { critical: 0, caution: 1, minor: 2 };
+  const list = spec.issues
+    .map(id => ({ id, ...ISSUES[id] }))
+    .filter(i => !i.yearMax || !year || year <= i.yearMax)
+    .sort((a,b) => order[a.sev] - order[b.sev]);
+
+  issuesEl.innerHTML = "";
+  if (spec.group){
+    const g = document.createElement("p");
+    g.className = "groupline";
+    const est = spec.group.includes("est") ? "" : "";
+    g.innerHTML = `<span class="groupchip">INS GROUP ${spec.group}</span> <span class="grouphint">of 50 — varies by exact trim/power; always get a quote for the actual driver</span>`;
+    issuesEl.appendChild(g);
+  }
+  if (spec.note && v){
+    const n = document.createElement("p");
+    n.style.cssText = "font-size:.85rem;color:var(--ink-soft);margin-bottom:12px";
+    n.textContent = spec.note;
+    issuesEl.appendChild(n);
+  }
+  list.forEach(i => {
+    const card = document.createElement("div");
+    card.className = "issue sev-" + i.sev;
+    card.innerHTML = `
+      <button class="issue-head" aria-expanded="false">
+        <span class="badge ${i.sev}">${i.sev === "critical" ? "Fail risk" : i.sev === "caution" ? "Advisory" : "Minor"}</span>
+        <span class="issue-title">${i.title}</span>
+        <svg class="chev" width="12" height="8" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </button>
+      <div class="issue-body">
+        <p>${i.desc}</p>
+        <ul class="checks">${i.checks.map(c => `<li>${c}</li>`).join("")}</ul>
+        ${i.cost ? `<span class="cost">${i.cost}</span>` : ""}
+      </div>`;
+    const btn = card.querySelector(".issue-head");
+    btn.addEventListener("click", () => {
+      const open = card.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open);
+    });
+    issuesEl.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
