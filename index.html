@@ -388,7 +388,11 @@
       <li><strong>Fiesta 1.0 EcoBoost / 1.1</strong> — nicer to drive, but every one carries the wet-belt question. Only buy with oil-change evidence, and price the belt job in past 8 yrs / 100k.</li>
       <li><strong>Honda Jazz (manual or post-2011 CVT)</strong> — chain-driven, no belt anxiety, statistically the most reliable car here. The catches: manual Jazzes are scarce secondhand, they cost more for the same age — and insurance groups are surprisingly high (13–19, vs 2–9 for a base Fiesta or Fabia). Get a quote before assuming it's the cheap option. Avoid the 2009–11 i-SHIFT entirely.</li>
       <li><strong>Škoda Fabia 1.0 MPI (2014 on)</strong> — the Fabia equivalent of the Fiesta 1.25: slow, chain-driven, low insurance, solid. The 2014-on TSI engines use a dry belt — the notorious chain problem only applies to the older 2010–14 1.2 TSI.</li>
-      <li><strong>Gearboxes to avoid regardless of badge</strong> — Ford Powershift, Honda i-SHIFT, Škoda DQ200 DSG. If the advert says automatic, check which one before viewing.</li>
+      <li><strong>Toyota Yaris petrol (1.0/1.33)</strong> — arguably the safest bet here: chain-driven, insurance groups 2–8, and Toyota's reliability is the real thing. Avoid the MultiMode automated auto; the hybrid is excellent but pricier and groups a bit higher. The Auris is the bigger sibling with the same virtues.</li>
+      <li><strong>VW Polo / Golf</strong> — nicer cabins, but engine choice is everything. The 2014-on 1.0/1.4 TSI (EA211) and 1.0 MPI use a dry belt or are trouble-free; the older 1.2/1.4 TSI (EA111, pre-2014) carries the same chain-tensioner risk as the Fabia. Golf is a size up and insures higher; GTI/R are non-starters for a young driver on group and price.</li>
+      <li><strong>Mini Hatch</strong> — desirable and fun, but the 2007–2013 R56 Prince engine has the 'death rattle' timing-chain fault that can scrap an engine — the cold-start listen is essential. The 2014-on F56 (BMW engines) is a big reliability step up. Either way, Minis insure higher and hold their price, so you pay more up front and more to cover it.</li>
+      <li><strong>Value tier — Hyundai i20 / Kia Rio / Suzuki Swift / Mazda 2 / SEAT Ibiza</strong> — all proper superminis, not city cars. The non-turbo petrols (i20/Rio 1.2–1.4 MPi, Swift 1.2, Mazda2 1.5) are chain-driven, cheap to insure and genuinely low-drama; a used Kia/Hyundai may even have warranty left. Two catches: the Korean 1.0 T-GDi turbo (pre-2020) has its own chain-tensioner rattle, and the SEAT Ibiza is a Polo underneath — so the same EA111-vs-EA211 engine rule applies. Sport/FR/Cupra versions insure like hot hatches.</li>
+      <li><strong>Gearboxes to avoid regardless of badge</strong> — Ford Powershift, Honda i-SHIFT, Toyota MultiMode (MMT), VW/Škoda DQ200 DSG. If the advert says automatic, check which one before viewing. (Toyota's hybrid eCVT is the exception — no clutch, very reliable.)</li>
       <li><strong>A score can't see everything</strong> — availability, drive feel and insurance quotes for the actual driver matter as much as the number. A 4/5 car you can insure beats a 5/5 car you can't.</li>
     </ul>
   </section>
@@ -513,6 +517,173 @@ const ISSUES = {
       "Watch for EGR-related warning lights or hesitant running on the test drive"
     ],
     cost: "EGR valve £250–£450 if faulty"
+  },
+  kiachain: {
+    title: "1.0 T-GDi timing chain tensioner (pre-2020)",
+    sev: "caution",
+    desc: "The turbo 1.0 T-GDi three-cylinder (Kia/Hyundai) has a documented timing-chain tensioner and guide weakness on pre-2020 cars — a metallic rattle on cold start that can progress to a whine and, if ignored, timing damage. Hyundai/Kia revised the chain, guides and oil spec in 2020. The non-turbo 1.2/1.4 MPi engines don't have this issue.",
+    checks: [
+      "Cold-start listen: a metallic rattle or whine means the tensioner/chain needs checking — negotiate hard or walk",
+      "Prefer a 2020-on car with the revised parts, or one with a documented chain replacement",
+      "Correct oil and sensible intervals are essential to chain life",
+      "Separately: check the fuel-pump recall (Aug 2024) was done — sudden power loss is the symptom"
+    ],
+    cost: "Chain/tensioner kit £500–£800"
+  },
+  koreandct: {
+    title: "7-speed dry DCT auto — traffic shudder",
+    sev: "caution",
+    desc: "The dry dual-clutch automatic can shudder and overheat in stop-start traffic and jerk at low speed. Durable on open roads, less happy in town. A manual sidesteps it entirely.",
+    checks: [
+      "Test in slow traffic — feel for shudder or a transmission-overheat warning",
+      "Check for jerky low-speed take-up",
+      "Ask about any clutch/mechatronic work"
+    ],
+    cost: "Clutch pack £700–£1,200 if worn"
+  },
+  simplechain: {
+    title: "Generally trouble-free — routine checks only",
+    sev: "minor",
+    desc: "This engine has a strong reliability record with no signature design fault. Chain-driven, so no cam-belt interval to budget for. Focus on evidence of regular servicing and the universal checks below.",
+    checks: [
+      "Full service history with regular oil changes",
+      "Cold-start listen for any untoward rattle (good practice on any chain engine)",
+      "MOT history clean of recurring advisories"
+    ],
+    cost: "Routine maintenance only"
+  },
+  deathrattle: {
+    title: "Prince engine timing chain 'death rattle'",
+    sev: "critical",
+    desc: "The R56's Prince engine (shared with Peugeot/Citroën) has a notorious weak timing chain tensioner and plastic guides. A tractor-like rattle on cold start means the chain is slapping the guides — left unchecked it jumps timing, the valves hit the pistons, and the engine is scrap. Worst on the turbo N14 Cooper S (2007–2010) and JCW; improved but not eliminated on the later N18. Can fail as early as 20–30k miles, not the 100k+ a chain should last.",
+    checks: [
+      "Arrive with the engine STONE COLD — start it yourself and listen for a diesel-like rattle from the passenger side. Any rattle: walk away or budget the full timing kit.",
+      "Ask for an invoice showing the chain, guides AND tensioner have been replaced (updated parts)",
+      "Check the oil is fresh and topped up — low/old oil is what kills these chains",
+      "A rattle that fades as it warms up is still a fail, not 'fine'"
+    ],
+    cost: "Full timing chain kit fitted £600–£1,000; ignored = engine £2,500+"
+  },
+  princeoil: {
+    title: "Prince engine oil consumption",
+    sev: "caution",
+    desc: "R56 Prince engines are known to burn oil, and BMW's long service intervals (up to 15k) let the level drop dangerously — which in turn accelerates the timing chain failure above. Specialists recommend oil changes every 5–6k.",
+    checks: [
+      "Check the oil level yourself (the R56 dipstick is notoriously hard to read — take your time)",
+      "Ask how much oil it uses between changes and how often it's serviced",
+      "Prefer a car on a 5–6k oil-change regime, not 15k"
+    ],
+    cost: "Monitoring; ties directly to chain longevity"
+  },
+  waterpump: {
+    title: "Water pump & thermostat failure",
+    sev: "caution",
+    desc: "R56 water pumps and thermostat housings commonly fail, causing coolant leaks and overheating. A frequent and not-trivial bill on these cars.",
+    checks: [
+      "Check for coolant leaks and staining around the pump/thermostat",
+      "Watch the temperature gauge on the test drive",
+      "Ask about any overheating history"
+    ],
+    cost: "Water pump £300–£500; thermostat housing £200–£350"
+  },
+  carbonN14: {
+    title: "Carbon build-up (turbo N14 Cooper S)",
+    sev: "minor",
+    desc: "The direct-injection turbo N14 suffers inlet-valve carbon build-up over higher mileage, causing rough running and misfires. Walnut-blasting cleans it.",
+    checks: [
+      "Rough idle or misfire codes can point to carbon",
+      "Ask whether the inlet has ever been cleaned on a higher-mileage car"
+    ],
+    cost: "Walnut-blast clean £250–£400"
+  },
+  miniinsurance: {
+    title: "Insurance & desirability reality check",
+    sev: "caution",
+    desc: "Minis sit in higher insurance groups than an equivalent Fiesta or Yaris (Cooper ~13–20, Cooper S ~25–30), and their desirability makes them a theft and cost-to-repair target. For a young driver the premium can be a real step up.",
+    checks: [
+      "Get a real insurance quote for the intended driver before viewing",
+      "Cooper S and JCW especially will be expensive to insure young",
+      "Check for modifications — common on Minis, and all must be declared"
+    ],
+    cost: "Young-driver premium often well above a Fiesta equivalent"
+  },
+  mmt: {
+    title: "MultiMode (MMT) automated manual",
+    sev: "critical",
+    desc: "Toyota's MMT automated-manual gearbox (badged 'MultiMode', found on some Yaris and Auris models) is jerky by design and its clutch actuator can fail. Like the Honda i-SHIFT, it's the one transmission to avoid in an otherwise bulletproof car.",
+    checks: [
+      "Test at crawl speed — hesitation and lurch between gears means actuator wear",
+      "Check for clutch/actuator replacement in history",
+      "A conventional manual or the hybrid's smooth eCVT is the better buy"
+    ],
+    cost: "Actuator/clutch work £500–£1,000"
+  },
+  oilburn: {
+    title: "Oil consumption (some 1.3/1.5 petrol)",
+    sev: "caution",
+    desc: "Some second-generation Yaris and related petrol engines are known to consume oil between services. Not catastrophic if topped up, but a neglected one can run low and wear prematurely.",
+    checks: [
+      "Check the oil level on the dipstick yourself — low or black oil is a warning",
+      "Ask the owner how often they top up between services",
+      "Look for a clean, documented oil-change record"
+    ],
+    cost: "Monitoring only; major work rare if maintained"
+  },
+  strut: {
+    title: "Front strut / suspension wear (Gen 3)",
+    sev: "minor",
+    desc: "Third-generation Yaris models can suffer front strut wear, giving a knocking ride and occasionally an MOT advisory. Cheap and routine, but useful for haggling.",
+    checks: [
+      "Listen for front-end knocks over bumps",
+      "Check recent MOTs for suspension advisories",
+      "Feel for a firm, controlled ride rather than crashy"
+    ],
+    cost: "Strut replacement £150–£300 per side"
+  },
+  toyinfo: {
+    title: "Touch/Toyota infotainment glitches",
+    sev: "minor",
+    desc: "Touch 2 and related systems can freeze, drop Bluetooth or reboot. Rarely a dealbreaker but check it works.",
+    checks: [
+      "Pair a phone, test Bluetooth calls and audio",
+      "Check reversing camera displays promptly if fitted",
+      "Confirm DAB holds signal"
+    ],
+    cost: "Usually software; unit replacement £150–£350"
+  },
+  hybridbatt: {
+    title: "Hybrid battery & cooling filter",
+    sev: "caution",
+    desc: "Toyota hybrid (HSD) drivetrains are very durable, but the traction battery is a long-term wear item and the battery cooling intake (behind the rear seat) clogs with dust if never cleaned, shortening battery life. A health check is worthwhile on higher-mileage cars.",
+    checks: [
+      "Ask for a Toyota hybrid health check certificate (extends the hybrid warranty too)",
+      "Check the battery cooling vent/filter has been kept clean",
+      "On the test drive, confirm smooth EV-to-engine transitions and no warning lights"
+    ],
+    cost: "Health check often free at Toyota; battery module repair £500–£1,500 if needed"
+  },
+  ea888: {
+    title: "2.0 TSI (GTI/R) — timing chain & carbon",
+    sev: "caution",
+    desc: "The EA888 2.0 TSI in the Golf GTI/R is strong but earlier versions had timing-chain tensioner concerns, and direct injection causes inlet-valve carbon build-up over high mileage. Also a magnet for modified, hard-driven examples.",
+    checks: [
+      "Cold-start rattle points to a chain tensioner — investigate before buying",
+      "Ask about walnut-blasting / carbon cleaning on higher-mileage cars",
+      "Check for remaps and track use — both must be declared to insurers",
+      "Full history with correct oil is essential on a performance engine"
+    ],
+    cost: "Chain kit £600–£900; carbon clean £250–£400"
+  },
+  vwinsurance: {
+    title: "Insurance reality check (GTI/GTD/R)",
+    sev: "caution",
+    desc: "Hot Golfs sit in high insurance groups (GTI ~29–31, R ~40+). For a young or new driver the premium will typically dwarf the car's value, and cover may be refused.",
+    checks: [
+      "Get a real insurance quote for the intended driver BEFORE viewing",
+      "Check for modifications — remaps and non-standard parts must be declared",
+      "Undeclared modifications void cover entirely"
+    ],
+    cost: "Young-driver premium commonly £3,000–£6,000+/yr"
   },
   st180head: {
     title: "1.6 EcoBoost coolant loss / cylinder head",
@@ -764,6 +935,236 @@ const DB = {
         "1.0 MPI / TSI — manual": { belt: "dry", group: "MPI: 3–5 · TSI: 10–14", issues: ["suspension"],
           note: "Too new for established fault patterns; standard used-car checks apply." },
         "1.0 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "12–16", issues: ["dq200","suspension"] }
+      }
+    }
+  }
+  ,
+  "Toyota": {
+    "Yaris XP90 (2005–2011)": {
+      years: [2005, 2011], priceFactor: 1.0,
+      engines: {
+        "1.0 / 1.33 VVT-i petrol — manual": { belt: "chain", group: "2–6", issues: ["oilburn","suspension","clutchjudder"],
+          note: "Chain-driven and famously reliable — no belt to worry about. The classic low-insurance, low-drama first car. Watch oil level and avoid the MultiMode auto." },
+        "1.3 VVT-i — MultiMode auto": { belt: "chain", gearboxRisk: true, group: "3–7", issues: ["mmt","oilburn","suspension"] },
+        "1.4 D-4D diesel — manual": { belt: "dry", priceFactor: 0.9, group: "5–9", issues: ["dpf","suspension"],
+          note: "The diesel is belt-driven (unlike the petrols) — check belt history. Overkill for a low-mileage first car anyway." }
+      }
+    },
+    "Yaris XP130 (2011–2020)": {
+      years: [2011, 2020], priceFactor: 1.05,
+      engines: {
+        "1.0 / 1.33 VVT-i petrol — manual": { belt: "chain", group: "2–8", issues: ["strut","toyinfo","suspension","clutchjudder"],
+          note: "Chain-driven, reliable, cheap to insure. One of the safest used-car bets on this list." },
+        "1.5 Hybrid — eCVT auto": { belt: "chain", group: "9–14", issues: ["hybridbatt","strut","toyinfo"],
+          note: "Chain-driven hybrid with a smooth eCVT (no clutch to wear). Superb reliability record; just get the hybrid health check." },
+        "1.4 D-4D diesel — manual": { belt: "dry", priceFactor: 0.9, group: "8–11", issues: ["dpf","strut","suspension"],
+          note: "Belt-driven diesel — check belt history and DPF. Wrong choice for short local runs." }
+      }
+    },
+    "Auris (2007–2012)": {
+      years: [2007, 2012], priceFactor: 0.95,
+      engines: {
+        "1.33 / 1.6 Valvematic petrol — manual": { belt: "chain", group: "est. 7–13", issues: ["oilburn","suspension","clutchjudder"],
+          note: "Chain-driven petrol — reliable. Groups estimated; verify for the exact trim." },
+        "1.6 petrol — MultiMode auto": { belt: "chain", gearboxRisk: true, group: "est. 10–14", issues: ["mmt","suspension"] },
+        "1.4 / 2.0 D-4D diesel — manual": { belt: "dry", priceFactor: 0.9, group: "est. 10–16", issues: ["dpf","injectors","suspension"],
+          note: "Belt-driven diesel — check belt and DPF history." }
+      }
+    },
+    "Auris (2012–2018)": {
+      years: [2012, 2018], priceFactor: 1.0,
+      engines: {
+        "1.33 / 1.6 Valvematic petrol — manual": { belt: "chain", group: "est. 8–14", issues: ["toyinfo","suspension","clutchjudder"],
+          note: "Chain-driven petrol, solid. Groups estimated." },
+        "1.2T petrol — manual": { belt: "chain", group: "est. 12–16", issues: ["toyinfo","suspension","clutchjudder"] },
+        "1.8 Hybrid — eCVT auto": { belt: "chain", group: "est. 11–16", issues: ["hybridbatt","toyinfo"],
+          note: "The pick of the range: chain-driven, clutchless eCVT, brilliant reliability. Get the hybrid health check." },
+        "1.4 D-4D diesel — manual": { belt: "dry", priceFactor: 0.9, group: "est. 11–15", issues: ["dpf","suspension"],
+          note: "Belt-driven diesel — check belt and DPF." }
+      }
+    }
+  }
+  ,
+  "Volkswagen": {
+    "Polo (6R/6C, 2009–2017)": {
+      years: [2009, 2017], priceFactor: 1.05,
+      engines: {
+        "1.2 / 1.4 petrol (non-turbo) — manual": { belt: "chain", group: "3–8", issues: ["htpchain","suspension","clutchjudder"],
+          note: "The older 3-cyl uses a timing chain that can stretch with neglected oil — listen at cold start. Low insurance otherwise." },
+        "1.2 TSI (EA111) — manual": { belt: "chain", group: "6–10", issues: ["ea111chain","suspension","clutchjudder"],
+          note: "Shares the notorious EA111 chain-tensioner issue with the Škoda Fabia — cold-start rattle is the warning sign." },
+        "1.2 TSI (EA211, 2014 on) — manual": { belt: "dry", group: "8–12", issues: ["suspension","clutchjudder"],
+          note: "The 2014-on EA211 moved to a conventional dry belt — the EA111 chain problem does NOT apply here." },
+        "1.2 TSI — DSG auto": { belt: "chain", gearboxRisk: true, group: "9–13", issues: ["ea111chain","dq200","suspension"] },
+        "1.4 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "9–14", issues: ["dpf","ea189","suspension"] }
+      }
+    },
+    "Polo (AW, 2017–2021)": {
+      years: [2017, 2021], priceFactor: 1.1,
+      engines: {
+        "1.0 MPI petrol — manual": { belt: "chain", group: "2–6", issues: ["suspension","clutchjudder"],
+          note: "Chain-driven, low insurance — the sensible non-turbo choice." },
+        "1.0 TSI (EA211) — manual": { belt: "dry", group: "7–12", issues: ["suspension","clutchjudder"],
+          note: "Dry cam belt with a long life — no chain-tensioner issue." },
+        "1.0 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "9–13", issues: ["dq200","suspension"] }
+      }
+    },
+    "Golf Mk6 (2008–2012)": {
+      years: [2008, 2012], priceFactor: 1.0,
+      engines: {
+        "1.4 TSI (EA111) — manual": { belt: "chain", group: "10–15", issues: ["ea111chain","suspension","clutchjudder"],
+          note: "The twincharged 1.4 TSI of this era is the one with the chain-tensioner AND (on 160PS versions) piston-ring issues — check carefully." },
+        "1.6 / 2.0 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "14–19", issues: ["dpf","ea189","suspension"] },
+        "2.0 TSI GTI — manual": { belt: "chain", priceFactor: 1.5, group: "29–31", issues: ["ea888","vwinsurance","suspension"] }
+      }
+    },
+    "Golf Mk7 (2012–2020)": {
+      years: [2012, 2020], priceFactor: 1.1,
+      engines: {
+        "1.0 / 1.4 TSI (EA211) — manual": { belt: "dry", group: "10–16", issues: ["suspension","clutchjudder"],
+          note: "EA211 with a conventional dry belt — the earlier EA111 chain problem does not apply. A genuinely solid used buy." },
+        "1.4 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "12–17", issues: ["dq200","suspension"] },
+        "1.6 / 2.0 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "14–20", issues: ["dpf","suspension"] },
+        "2.0 TSI GTI / GTD — manual": { belt: "chain", priceFactor: 1.5, group: "29–33", issues: ["ea888","vwinsurance","suspension"] },
+        "2.0 TSI R — manual/DSG": { belt: "chain", priceFactor: 1.8, gearboxRisk: false, group: "40–43", issues: ["ea888","vwinsurance","suspension"] }
+      }
+    }
+  }
+  ,
+  "Mini": {
+    "Hatch R56 (2007–2013, 3-door)": {
+      years: [2007, 2013], priceFactor: 1.15,
+      engines: {
+        "One / Cooper 1.4–1.6 (N12/N16) — manual": { belt: "chain", group: "9–16", issues: ["deathrattle","princeoil","waterpump","suspension"],
+          note: "Chain-driven — but this is the Prince engine with the 'death rattle' tensioner weakness. The cold-start listen is the single most important check on this car." },
+        "Cooper S / JCW 1.6 turbo (N14, 2007–2010) — manual": { belt: "chain", priceFactor: 1.25, group: "25–32", issues: ["deathrattle","princeoil","waterpump","carbonN14","miniinsurance","suspension"],
+          note: "The N14 is the WORST for death rattle — 2007–2010 turbo cars especially. High insurance too. Only buy with a documented timing kit and full oil history." },
+        "Cooper S 1.6 turbo (N18, 2010–2013) — manual": { belt: "chain", priceFactor: 1.25, group: "26–32", issues: ["deathrattle","princeoil","waterpump","carbonN14","miniinsurance","suspension"],
+          note: "The N18 improved the tensioner but didn't fully cure it — still do the cold-start listen." },
+        "Cooper D 1.6 diesel — manual": { belt: "dry", priceFactor: 0.95, group: "14–20", issues: ["dpf","injectors","waterpump","suspension"],
+          note: "Diesel (PSA-derived) is belt-driven — no death rattle, but check belt, DPF and injectors. Wrong choice for short local runs." }
+      }
+    },
+    "Hatch F56 (2014–2023, 3-door)": {
+      years: [2014, 2023], priceFactor: 1.2,
+      engines: {
+        "One / Cooper 1.2–1.5 (B38, 3-cyl) — manual": { belt: "chain", group: "est. 10–18", issues: ["miniinsurance","suspension"],
+          note: "New BMW B-series engine — a big reliability step up from the Prince, and the death rattle is largely designed out. Chain-driven. Groups estimated; still insures higher than a Fiesta." },
+        "Cooper S 2.0 (B48) — manual": { belt: "chain", priceFactor: 1.3, group: "est. 25–31", issues: ["miniinsurance","suspension"],
+          note: "Much stronger engine than the old N14, but a hot hatch on insurance — quote before viewing." },
+        "Cooper 1.5 — automatic": { belt: "chain", group: "est. 11–19", issues: ["miniinsurance","suspension"],
+          note: "Torque-converter/dual-clutch auto depending on year — generally reliable, unlike the old automated manuals to avoid elsewhere." },
+        "Cooper D 1.5–2.0 diesel — manual": { belt: "chain", priceFactor: 0.95, group: "est. 12–20", issues: ["dpf","miniinsurance","suspension"],
+          note: "BMW diesel, chain-driven. Check DPF history; short-run use is the enemy." }
+      }
+    }
+  }
+  ,
+  "Hyundai": {
+    "i20 (PB, 2008–2014)": {
+      years: [2008, 2014], priceFactor: 0.9,
+      engines: {
+        "1.2 / 1.4 petrol — manual": { belt: "chain", group: "2–8", issues: ["simplechain","suspension","clutchjudder"],
+          note: "Chain-driven, low insurance, dependable — the value end of sensible. Cheap to run, if a little forgettable to drive." },
+        "1.1 / 1.4 CRDi diesel — manual": { belt: "dry", priceFactor: 0.9, group: "6–11", issues: ["dpf","suspension"],
+          note: "Belt-driven diesel — wrong choice for short local runs; check belt and DPF." }
+      }
+    },
+    "i20 (GB, 2015–2020)": {
+      years: [2015, 2020], priceFactor: 0.95,
+      engines: {
+        "1.2 / 1.4 MPi petrol — manual": { belt: "chain", group: "2–9", issues: ["simplechain","suspension","clutchjudder"],
+          note: "The trouble-free pick: chain-driven non-turbo, low insurance, solid record." },
+        "1.0 T-GDi turbo — manual": { belt: "chain", group: "7–13", issues: ["kiachain","suspension"],
+          note: "Peppier, but pre-2020 cars have the T-GDi chain-tensioner issue — do the cold-start listen." },
+        "1.0 T-GDi — 7-speed DCT auto": { belt: "chain", gearboxRisk: true, group: "9–14", issues: ["kiachain","koreandct","suspension"] }
+      }
+    }
+  }
+  ,
+  "Kia": {
+    "Rio (UB, 2011–2017)": {
+      years: [2011, 2017], priceFactor: 0.9,
+      engines: {
+        "1.25 / 1.4 petrol — manual": { belt: "chain", group: "3–9", issues: ["simplechain","suspension","clutchjudder"],
+          note: "Chain-driven and dependable, and a used one may still have some of Kia's 7-year warranty left — check the transfer date." },
+        "1.1 / 1.4 CRDi diesel — manual": { belt: "dry", priceFactor: 0.9, group: "7–12", issues: ["dpf","suspension"] }
+      }
+    },
+    "Rio (YB, 2017–2023)": {
+      years: [2017, 2023], priceFactor: 0.95,
+      engines: {
+        "1.25 / 1.4 MPi petrol — manual": { belt: "chain", group: "3–10", issues: ["simplechain","suspension","clutchjudder"],
+          note: "The sensible choice: non-turbo, chain-driven, low insurance, and possible remaining 7-year warranty." },
+        "1.0 T-GDi turbo — manual": { belt: "chain", group: "8–13", issues: ["kiachain","suspension"],
+          note: "Pre-2020 T-GDi has the chain-tensioner issue — cold-start listen essential. 2020-on has revised parts." },
+        "1.0 T-GDi — 7-speed DCT auto": { belt: "chain", gearboxRisk: true, group: "10–14", issues: ["kiachain","koreandct","suspension"] }
+      }
+    }
+  }
+  ,
+  "Suzuki": {
+    "Swift (2010–2017)": {
+      years: [2010, 2017], priceFactor: 0.95,
+      engines: {
+        "1.2 petrol — manual": { belt: "chain", group: "est. 1–9", issues: ["simplechain","suspension","clutchjudder"],
+          note: "Light, chain-driven, reliable and more fun to drive than most on this list. Low insurance. Groups estimated — verify for the trim." },
+        "1.6 Sport — manual": { belt: "chain", priceFactor: 1.2, group: "est. 24–28", issues: ["simplechain","suspension"],
+          note: "The Sport is a proper hot hatch on insurance — quote for the driver before viewing." }
+      }
+    },
+    "Swift (2017–2023)": {
+      years: [2017, 2023], priceFactor: 1.0,
+      engines: {
+        "1.2 Dualjet petrol — manual": { belt: "chain", group: "est. 2–10", issues: ["simplechain","suspension","clutchjudder"],
+          note: "Chain-driven, very light, genuinely reliable. One of the underrated first-car picks." },
+        "1.0 Boosterjet turbo — manual": { belt: "chain", group: "est. 10–14", issues: ["simplechain","suspension"],
+          note: "Turbo three-cylinder, chain-driven, strong record. Peppy for the class." },
+        "1.4 Sport Boosterjet — manual": { belt: "chain", priceFactor: 1.2, group: "est. 26–30", issues: ["simplechain","suspension"],
+          note: "Hot hatch — high insurance for a young driver." }
+      }
+    }
+  }
+  ,
+  "Mazda": {
+    "Mazda2 (DE, 2007–2015)": {
+      years: [2007, 2015], priceFactor: 0.95,
+      engines: {
+        "1.3 / 1.5 petrol — manual": { belt: "chain", group: "est. 2–14", issues: ["simplechain","suspension","clutchjudder"],
+          note: "Chain-driven and reliable, a bit more fun to drive than a Yaris. Groups vary widely by trim — verify." }
+      }
+    },
+    "Mazda2 (DJ, 2015–2023)": {
+      years: [2015, 2023], priceFactor: 1.0,
+      engines: {
+        "1.5 SkyActiv-G petrol — manual": { belt: "chain", group: "est. 7–17", issues: ["simplechain","suspension","clutchjudder"],
+          note: "SkyActiv-G is chain-driven and robust; naturally aspirated so no turbo to worry about. Solid buy." }
+      }
+    }
+  }
+  ,
+  "SEAT": {
+    "Ibiza (6J, 2008–2017)": {
+      years: [2008, 2017], priceFactor: 0.95,
+      engines: {
+        "1.2 / 1.4 petrol (non-turbo) — manual": { belt: "chain", group: "3–9", issues: ["htpchain","suspension","clutchjudder"],
+          note: "Mechanically a Polo/Fabia underneath — often cheaper for the same car. The older 3-cyl chain can stretch; listen at cold start." },
+        "1.2 TSI (EA111) — manual": { belt: "chain", group: "6–11", issues: ["ea111chain","suspension","clutchjudder"],
+          note: "Same EA111 chain-tensioner risk as the Polo/Fabia of this era — cold-start rattle is the warning." },
+        "1.0 / 1.4 TSI (EA211, 2015 on) — manual": { belt: "dry", group: "7–13", issues: ["suspension","clutchjudder"],
+          note: "EA211 moved to a dry cam belt with a long life — the EA111 chain issue does NOT apply here." },
+        "1.2 TSI — DSG auto": { belt: "chain", gearboxRisk: true, group: "9–13", issues: ["ea111chain","dq200","suspension"] },
+        "1.2 / 1.6 TDI diesel — manual": { belt: "dry", priceFactor: 0.9, group: "8–14", issues: ["dpf","ea189","suspension"] }
+      }
+    },
+    "Ibiza (6F, 2017–2023)": {
+      years: [2017, 2023], priceFactor: 1.0,
+      engines: {
+        "1.0 MPI petrol — manual": { belt: "chain", group: "2–7", issues: ["suspension","clutchjudder"],
+          note: "Chain-driven, low insurance — the sensible non-turbo choice, same as the Polo AW it shares parts with." },
+        "1.0 TSI (EA211) — manual": { belt: "dry", group: "7–12", issues: ["suspension","clutchjudder"],
+          note: "Dry cam belt, long life, no chain-tensioner issue." },
+        "1.0 TSI — DSG auto": { belt: "dry", gearboxRisk: true, group: "9–13", issues: ["dq200","suspension"] }
       }
     }
   }
