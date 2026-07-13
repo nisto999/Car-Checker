@@ -106,7 +106,8 @@
   .regrow{display:flex;gap:8px}
   .regrow input{
     flex:1;text-transform:uppercase;
-    font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.08em;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.1em;
+    font-size:1.25rem;
   }
   .regrow button{
     flex:none;
@@ -157,6 +158,19 @@
   .saverow button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
   #clearBtn{
     background:#fff;color:var(--ink-soft);border:1px solid var(--line);
+  }
+  .hdr-actions{display:flex;align-items:center;gap:12px}
+  #newCarBtn{
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.9rem;
+    letter-spacing:.04em;text-transform:uppercase;
+    padding:5px 12px;border:none;border-radius:var(--radius);
+    background:var(--accent);color:#fff;cursor:pointer;
+  }
+  #newCarBtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .auto-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
+    background:var(--pass-bg);padding:1px 5px;border-radius:3px;margin-left:4px;
   }
   .g-row{
     display:flex;align-items:center;gap:10px;
@@ -340,7 +354,15 @@
 <div class="wrap">
 
   <section class="panel">
-    <h2>Vehicle <span class="step">Step 1 of 2</span></h2>
+    <h2>Vehicle <span class="hdr-actions"><button type="button" id="newCarBtn">+ New car</button> <span class="step">Step 1 of 2</span></span></h2>
+    <div class="field">
+      <label for="reg">Registration — used as the save key & MOT check</label>
+      <div class="regrow">
+        <input type="text" id="reg" placeholder="e.g. NK15 XYZ" autocapitalize="characters" autocomplete="off" maxlength="10">
+        <button type="button" id="motBtn" disabled>Check MOT history</button>
+      </div>
+      <p class="reghint" id="regHint">Enter the plate first — the year fills in automatically from the age identifier (e.g. 15 → 2015, 65 → late 2015). The button opens the official gov.uk MOT check.</p>
+    </div>
     <div class="grid2">
       <div class="field">
         <label for="make">Make</label>
@@ -357,7 +379,7 @@
     </div>
     <div class="grid2">
       <div class="field">
-        <label for="year">Year of registration</label>
+        <label for="year">Year of registration <span id="yearAuto" class="auto-tag" style="display:none">auto from plate</span></label>
         <input type="number" id="year" min="2000" max="2026" placeholder="e.g. 2017" inputmode="numeric">
       </div>
       <div class="field">
@@ -372,14 +394,6 @@
     <div class="toggle">
       <input type="checkbox" id="beltDone">
       <span><strong>Timing belt already replaced</strong> — seller has an invoice showing a belt change (only relevant to belt-driven engines)</span>
-    </div>
-    <div class="field" style="margin-top:4px">
-      <label for="reg">Registration — used as the save key</label>
-      <div class="regrow">
-        <input type="text" id="reg" placeholder="e.g. NK17 XYZ" autocapitalize="characters" autocomplete="off" maxlength="10">
-        <button type="button" id="motBtn" disabled>Check MOT history</button>
-      </div>
-      <p class="reghint">Opens the official gov.uk MOT check pre-filled — review mileage progression and past advisories there, then tick off the checks below.</p>
     </div>
   </section>
 
@@ -1248,11 +1262,41 @@ modelSel.addEventListener("change", () => {
   el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", render)
 );
 
-// Registration → gov.uk MOT check deep link
+// Registration → gov.uk MOT check deep link + year inference
 const regIn = $("reg"), motBtn = $("motBtn");
+
+/* Infer registration year from the current-format (2001-on) plate age
+   identifier: AA00 AAA. Digits 1–50 = March of 20NN; 51–99 = Sept, add 50.
+   Returns null for older prefix/suffix plates or anything that doesn't parse. */
+function yearFromPlate(raw){
+  const p = (raw || "").replace(/\s/g, "").toUpperCase();
+  // Current format: two letters, two digits, three letters
+  const m = p.match(/^[A-Z]{2}(\d{2})[A-Z]{3}$/);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  if (n < 1 || n > 75) return null; // 00 and 76-99 aren't valid age IDs yet
+  return n <= 50 ? 2000 + n : 2000 + (n - 50);
+}
+
+let yearManuallyEdited = false;
+yearIn.addEventListener("input", () => { yearManuallyEdited = true; });
+
+function applyPlateYear(){
+  const y = yearFromPlate(regIn.value);
+  const tag = $("yearAuto");
+  if (y && !yearManuallyEdited){
+    yearIn.value = y;
+    tag.style.display = "";
+    render();
+  } else if (!y){
+    tag.style.display = "none";
+  }
+}
+
 regIn.addEventListener("input", () => {
   regIn.value = regIn.value.toUpperCase();
   motBtn.disabled = regIn.value.replace(/\s/g, "").length < 4;
+  applyPlateYear();
 });
 motBtn.addEventListener("click", () => {
   const reg = encodeURIComponent(regIn.value.replace(/\s/g, ""));
@@ -1322,9 +1366,13 @@ function renderGarage(){
       makeSel.value = car.make; makeSel.dispatchEvent(new Event("change"));
       modelSel.value = car.model; modelSel.dispatchEvent(new Event("change"));
       engSel.value = car.engine;
-      yearIn.value = car.year; milesIn.value = car.miles;
+      milesIn.value = car.miles;
       $("price").value = car.price || ""; beltChk.checked = !!car.beltDone;
+      // Set reg first (fires inference), then force the stored year to stand
+      yearManuallyEdited = true;
       if (car.reg){ regIn.value = car.reg; regIn.dispatchEvent(new Event("input")); }
+      yearIn.value = car.year;
+      $("yearAuto").style.display = yearFromPlate(car.reg) === car.year ? "" : "none";
       $("carName").value = car.name;
       render();
       window.scrollTo({top: 0, behavior: "smooth"});
@@ -1377,16 +1425,20 @@ $("saveBtn").addEventListener("click", async () => {
 });
 
 // Clear the form to enter a fresh car
-$("clearBtn").addEventListener("click", () => {
+function clearForm(){
   makeSel.value = ""; makeSel.dispatchEvent(new Event("change"));
   yearIn.value = ""; milesIn.value = ""; $("price").value = "";
   beltChk.checked = false;
   regIn.value = ""; regIn.dispatchEvent(new Event("input"));
   $("carName").value = "";
+  yearManuallyEdited = false;
+  $("yearAuto").style.display = "none";
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
-  regIn && makeSel.focus();
-});
+  regIn.focus();
+}
+$("clearBtn").addEventListener("click", clearForm);
+$("newCarBtn").addEventListener("click", clearForm);
 
 // Load saved cars on startup
 store.load().then(cars => { garage = cars || []; renderGarage(); });
