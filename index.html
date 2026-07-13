@@ -155,6 +155,9 @@
     background:var(--pass);color:#fff;cursor:pointer;
   }
   .saverow button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  #clearBtn{
+    background:#fff;color:var(--ink-soft);border:1px solid var(--line);
+  }
   .g-row{
     display:flex;align-items:center;gap:10px;
     padding:12px 10px;border:1px solid var(--line);border-radius:var(--radius);
@@ -194,6 +197,34 @@
     padding:4px 8px;border-radius:3px;flex:none;
   }
   .grouphint{font-size:.75rem;color:var(--ink-soft)}
+
+  /* Big-bill exposure */
+  .risk-block{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .risk-head{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;
+  }
+  .risk-row{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-top:1px dashed var(--line)}
+  .risk-row:first-of-type{border-top:none}
+  .risk-dot{width:10px;height:10px;border-radius:50%;flex:none;align-self:center}
+  .rd-high{background:var(--fail)}
+  .rd-med{background:var(--advisory)}
+  .rd-low{background:var(--pass)}
+  .risk-cat{font-weight:600;font-size:.85rem;width:120px;flex:none}
+  .risk-lvl{
+    font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:3px;flex:none;
+  }
+  .rl-high{background:var(--fail-bg);color:var(--fail)}
+  .rl-med{background:var(--advisory-bg);color:var(--advisory)}
+  .rl-low{background:var(--pass-bg);color:var(--pass)}
+  .risk-why{font-size:.78rem;color:var(--ink-soft);flex:1;min-width:0}
+  .risk-summary{font-size:.8rem;color:var(--ink);margin-top:10px;font-style:italic}
+  @media(max-width:480px){
+    .risk-row{flex-wrap:wrap}
+    .risk-cat{width:auto}
+    .risk-why{flex-basis:100%;order:5}
+  }
   @media(max-width:420px){.grid2{grid-template-columns:1fr}}
 
   /* Toggle row */
@@ -360,9 +391,15 @@
   <section class="panel" id="scorePanel" style="display:none">
     <h2>Score</h2>
     <div id="scoreRows"></div>
+    <div class="risk-block">
+      <div class="risk-head">Big-bill exposure</div>
+      <div id="riskRows"></div>
+      <p class="risk-summary" id="riskSummary"></p>
+    </div>
     <div class="saverow">
       <input type="text" id="carName" placeholder="Optional label — e.g. G&amp;D Stockton, blue one" maxlength="40">
       <button type="button" id="saveBtn">Save car</button>
+      <button type="button" id="clearBtn" title="Clear the form to enter another car">New</button>
     </div>
     <p class="reghint" id="scoreNote"></p>
   </section>
@@ -1315,7 +1352,7 @@ $("saveBtn").addEventListener("click", async () => {
   }
   const spec = DB[mk][md].engines[en];
   const v = beltVerdict(spec);
-  const s = computeScores(spec, v, DB[mk][md].priceFactor || 1);
+  const s = computeScores(spec, v, DB[mk][md].priceFactor || 1, en);
   if (!s){
     $("saveBtn").textContent = "Add year + miles";
     setTimeout(() => $("saveBtn").textContent = "Save car", 1600);
@@ -1337,6 +1374,18 @@ $("saveBtn").addEventListener("click", async () => {
   renderGarage();
   $("saveBtn").textContent = existing >= 0 ? "Updated " + regKey + " ✓" : "Saved " + regKey + " ✓";
   setTimeout(() => $("saveBtn").textContent = "Save car", 1600);
+});
+
+// Clear the form to enter a fresh car
+$("clearBtn").addEventListener("click", () => {
+  makeSel.value = ""; makeSel.dispatchEvent(new Event("change"));
+  yearIn.value = ""; milesIn.value = ""; $("price").value = "";
+  beltChk.checked = false;
+  regIn.value = ""; regIn.dispatchEvent(new Event("input"));
+  $("carName").value = "";
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  regIn && makeSel.focus();
 });
 
 // Load saved cars on startup
@@ -1397,7 +1446,7 @@ function priceScore(pratio){
   return 1;
 }
 
-function computeScores(spec, v, modelFactor = 1){
+function computeScores(spec, v, modelFactor = 1, engineLabel = ""){
   const year = parseInt(yearIn.value), miles = parseInt(milesIn.value), price = parseInt($("price").value);
   if (!year || isNaN(miles)) return null;
   const age = Math.max(0.5, new Date().getFullYear() - year);
@@ -1421,10 +1470,59 @@ function computeScores(spec, v, modelFactor = 1){
   if (v && v.cls === "v-fail"){ overall -= 1.5; penalties.push("belt overdue −1.5"); }
   else if (v && v.cls === "v-adv" && (yearIn.value || milesIn.value)){ overall -= 0.5; penalties.push("belt approaching −0.5"); }
   if (spec.gearboxRisk){ overall -= 1; penalties.push("high-risk gearbox −1"); }
+  if (/diesel|TDI|TDCi|CRDi|D-4D|HDi|CDTi|dCi/i.test(engineLabel)){ overall -= 0.5; penalties.push("diesel running-cost cluster −0.5"); }
   overall = clamp(Math.round(overall*2)/2, 1, 5);
 
   return { mScore, mWhy, pScore, pWhy, overall,
     oWhy: penalties.length ? "Penalties: " + penalties.join(", ") : "Mileage + price" + (pScore===null ? " (price not entered)" : "") };
+}
+
+/* Derive big-bill exposure from data already in the record — engine
+   label, belt type and gearbox flag — so we don't hand-tag every variant.
+   Returns categories with a level (none/low/med/high) and a one-liner. */
+function deriveRisks(spec, engineLabel, year){
+  const L = engineLabel || "";
+  const isDiesel = /diesel|TDI|TDCi|CRDi|D-4D|HDi|CDTi|dCi/i.test(L);
+  const isTurboPetrol = !isDiesel && /TSI|EcoBoost|T-GDi|Boosterjet|GTI|GTD|\bST\b|\bR\b|Cupra|Sport/i.test(L);
+  const isTurbo = isDiesel || isTurboPetrol;
+  const isManual = /manual/i.test(L);
+  const isAuto = /auto|CVT|DSG|DCT|Powershift|i-SHIFT|MultiMode|eCVT|automatic/i.test(L);
+  const isSmoothAuto = /eCVT|hybrid|e:HEV|i-MMD|IMA/i.test(L); // Toyota/Honda hybrid autos
+  const nowY = new Date().getFullYear();
+  const age = year ? nowY - year : null;
+
+  const R = [];
+
+  // Timing (belt/chain)
+  if (spec.belt === "wet") R.push({ cat:"Timing belt", lvl:"high", why:"Wet belt-in-oil — £500–£1,000 preventative, engine-killer if neglected" });
+  else if (spec.belt === "dry") R.push({ cat:"Timing belt", lvl:"med", why:"Conventional cam belt — scheduled £250–£350 every 4–8 yrs" });
+  else R.push({ cat:"Timing", lvl:"low", why:"Chain-driven — no scheduled belt cost" });
+
+  // Auto gearbox
+  if (spec.gearboxRisk) R.push({ cat:"Auto gearbox", lvl:"high", why:"Known-fragile auto — £800–£1,800 if it fails, often uneconomic" });
+  else if (isAuto && !isSmoothAuto) R.push({ cat:"Auto gearbox", lvl:"med", why:"Automatic — pricier to repair than a manual if it goes" });
+  else if (isSmoothAuto) R.push({ cat:"Auto gearbox", lvl:"low", why:"Hybrid eCVT — no clutch to wear, very reliable" });
+  else R.push({ cat:"Gearbox", lvl:"low", why:"Manual — removes the big auto-failure bill" });
+
+  // Turbo
+  if (isTurbo) R.push({ cat:"Turbo", lvl:"med", why:"Turbocharged — £600–£1,200 if it fails; oil history is everything" });
+  else R.push({ cat:"Turbo", lvl:"low", why:"Naturally aspirated — no turbo to fail" });
+
+  // Diesel cluster
+  if (isDiesel) R.push({ cat:"Diesel (DPF/EGR)", lvl:"high", why:"DPF £800–£1,500 + EGR £250–£450 — bad news on short local runs" });
+
+  // Clutch / DMF
+  if (isManual && (isDiesel || isTurboPetrol)) R.push({ cat:"Clutch / DMF", lvl:"med", why:"Torquey engine — clutch+dual-mass flywheel £900–£1,400" });
+  else if (isManual) R.push({ cat:"Clutch", lvl:"low", why:"Light NA engine — clutch wear is a modest £450–£700" });
+
+  // Corrosion / age
+  if (age !== null){
+    if (age >= 15) R.push({ cat:"Corrosion / age", lvl:"high", why:`${age} yrs old — check sills, subframe, brake lines; rust can be an MOT write-off` });
+    else if (age >= 10) R.push({ cat:"Corrosion / age", lvl:"med", why:`${age} yrs old — look underneath for surface rust starting` });
+    else R.push({ cat:"Corrosion / age", lvl:"low", why:`${age} yrs old — corrosion unlikely yet` });
+  }
+
+  return R;
 }
 
 function pips(score, max=5){
@@ -1433,9 +1531,9 @@ function pips(score, max=5){
   return h + "</span>";
 }
 
-function renderScores(spec, v, modelFactor){
+function renderScores(spec, v, modelFactor, engineLabel, year){
   const panel = $("scorePanel"), rows = $("scoreRows");
-  const s = computeScores(spec, v, modelFactor);
+  const s = computeScores(spec, v, modelFactor, engineLabel);
   if (!s){ panel.style.display = "none"; return; }
   panel.style.display = "block";
   rows.innerHTML = `
@@ -1455,6 +1553,28 @@ function renderScores(spec, v, modelFactor){
       <span class="s-num">${s.overall}/5</span>
     </div>`;
   $("scoreNote").textContent = "Guide prices are for mid-spec petrol dealer stock; private sales should score roughly one point better on price at the same money. A 5 on price with a 1 on mileage usually means the mileage explains the price.";
+
+  // Big-bill exposure
+  const risks = deriveRisks(spec, engineLabel, year);
+  const rank = { high:0, med:1, low:2 };
+  risks.sort((a,b) => rank[a.lvl] - rank[b.lvl]);
+  const dot = l => `<span class="risk-dot rd-${l}"></span>`;
+  const word = { high:"High", med:"Medium", low:"Low" };
+  const highs = risks.filter(r => r.lvl === "high").length;
+  const meds = risks.filter(r => r.lvl === "med").length;
+  const summary = highs === 0 && meds <= 1
+    ? "Low-exposure spec — few of the big-ticket bills apply to this variant."
+    : highs >= 2
+      ? "Several big-bill exposures stack up on this spec — read each and price them in."
+      : "Some big-bill exposure — manageable, but factor it into your offer.";
+  $("riskRows").innerHTML = risks.map(r =>
+    `<div class="risk-row">
+       ${dot(r.lvl)}
+       <span class="risk-cat">${r.cat}</span>
+       <span class="risk-lvl rl-${r.lvl}">${word[r.lvl]}</span>
+       <span class="risk-why">${r.why}</span>
+     </div>`).join("");
+  $("riskSummary").textContent = summary;
 }
 
 function render(){
@@ -1483,7 +1603,7 @@ function render(){
     $("vText").textContent = spec.note || "This engine uses a conventional timing setup — the wet-belt problem does not apply. Standard belt/chain maintenance rules still apply.";
   }
 
-  renderScores(spec, v, DB[mk][md].priceFactor || 1);
+  renderScores(spec, v, DB[mk][md].priceFactor || 1, en, year);
 
   // Issue cards, filtered by year where relevant, sorted by severity
   const order = { critical: 0, caution: 1, minor: 2 };
