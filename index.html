@@ -172,6 +172,18 @@
     letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
     background:var(--pass-bg);padding:1px 5px;border-radius:3px;margin-left:4px;
   }
+  .syncrow{display:flex;gap:8px;flex-wrap:wrap}
+  .syncrow button{
+    flex:1;min-width:140px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.95rem;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:11px 14px;border-radius:var(--radius);cursor:pointer;
+  }
+  #exportBtn{background:var(--accent);color:#fff;border:none}
+  #importBtn{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .syncrow button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .syncmsg-ok{color:var(--pass)!important;font-style:normal!important}
+  .syncmsg-err{color:var(--fail)!important;font-style:normal!important}
   .g-row{
     display:flex;align-items:center;gap:10px;
     padding:12px 10px;border:1px solid var(--line);border-radius:var(--radius);
@@ -422,6 +434,16 @@
     <h2>Saved cars <span class="step" id="garageCount"></span></h2>
     <div id="garageRows"></div>
     <p class="reghint">Sorted by overall score. Tap a car to reload its details into the form.</p>
+  </section>
+
+  <section class="panel" id="syncPanel">
+    <h2>Back up &amp; move between devices</h2>
+    <div class="syncrow">
+      <button type="button" id="exportBtn">Export saved cars</button>
+      <button type="button" id="importBtn">Import from file</button>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    </div>
+    <p class="reghint" id="syncMsg">Export downloads a small file of your saved cars — save it into iCloud Drive, then Import it on your other device to load the same list. It's a manual copy, not live sync: the most recent import replaces what's there.</p>
   </section>
 
   <section class="panel">
@@ -1439,6 +1461,63 @@ function clearForm(){
 }
 $("clearBtn").addEventListener("click", clearForm);
 $("newCarBtn").addEventListener("click", clearForm);
+
+// Export / import for backup and moving between devices via iCloud Drive
+function setSyncMsg(text, cls){
+  const el = $("syncMsg");
+  el.textContent = text;
+  el.className = "reghint" + (cls ? " " + cls : "");
+}
+const SYNC_DEFAULT = "Export downloads a small file of your saved cars — save it into iCloud Drive, then Import it on your other device to load the same list. It's a manual copy, not live sync: the most recent import replaces what's there.";
+
+$("exportBtn").addEventListener("click", () => {
+  if (!garage.length){ setSyncMsg("Nothing to export yet — save a car first.", "syncmsg-err"); return; }
+  try {
+    const payload = { app: "car-checker", version: 1, exported: new Date().toISOString(), cars: garage };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const stamp = new Date().toISOString().slice(0, 10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `car-checker-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setSyncMsg(`Exported ${garage.length} car${garage.length===1?"":"s"}. Save the file into iCloud Drive, then Import it on your other device.`, "syncmsg-ok");
+  } catch(e){
+    setSyncMsg("Export failed — your browser may be blocking downloads.", "syncmsg-err");
+  }
+});
+
+$("importBtn").addEventListener("click", () => $("importFile").click());
+
+$("importFile").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const incoming = Array.isArray(data) ? data : data.cars;
+      if (!Array.isArray(incoming)) throw new Error("no cars array");
+      // Basic shape check
+      const valid = incoming.filter(c => c && c.reg && c.make && c.model);
+      if (!valid.length) throw new Error("no valid cars");
+      // Merge by reg: imported cars overwrite same-reg locals, others kept
+      const byReg = {};
+      garage.forEach(c => byReg[c.reg] = c);
+      valid.forEach(c => byReg[c.reg] = c);
+      garage = Object.values(byReg);
+      await store.save(garage);
+      renderGarage();
+      setSyncMsg(`Imported ${valid.length} car${valid.length===1?"":"s"} — your list now has ${garage.length}.`, "syncmsg-ok");
+    } catch(err){
+      setSyncMsg("Couldn't read that file — make sure it's a car-checker export (.json).", "syncmsg-err");
+    }
+    $("importFile").value = "";
+  };
+  reader.onerror = () => { setSyncMsg("Couldn't read that file.", "syncmsg-err"); $("importFile").value = ""; };
+  reader.readAsText(file);
+});
 
 // Load saved cars on startup
 store.load().then(cars => { garage = cars || []; renderGarage(); });
